@@ -9,8 +9,7 @@ export const apiList = () => {
 
 export const generateUrl = (appName, appVersion) => `/${DEFAULT_PREFIX}/${appName}/${appVersion}/openapi.json`;
 
-export const activeApi = () => instance.get('https://raw.githubusercontent.com/'
-    + 'RedHatInsights/cloud-services-config/master/main.yml')
+export const activeApi = () => instance.get(`${insights.chrome.isBeta() ? '/beta' : ''}/config/main.yml`)
 .then(data => safeLoad(data))
 .then(data => ({
     services: Object.keys(data)
