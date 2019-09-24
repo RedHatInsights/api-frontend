@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Badge,
     Bullseye,
+    Button,
     EmptyState,
     Title,
     EmptyStateBody,
@@ -9,7 +10,7 @@ import {
 } from '@patternfly/react-core';
 import { sortable, SortByDirection, cellWidth } from '@patternfly/react-table';
 import { EmptyTable } from '@redhat-cloud-services/frontend-components';
-import { oneApi, generateUrl } from '../api';
+import { oneApi } from '../api';
 import fileDownload from 'js-file-download';
 import JSZip from 'jszip';
 
@@ -18,7 +19,8 @@ const indexToKey = [ 'title', 'appName', 'version' ];
 export const columns = [
     { title: 'Application name', transforms: [ sortable ]},
     { title: 'API endpoint', transforms: [ sortable ]},
-    { title: 'API version', transforms: [ sortable, cellWidth(10) ]}
+    { title: 'API version', transforms: [ sortable, cellWidth(10) ]},
+    { title: 'Action', transforms: [ cellWidth(10) ]}
 ];
 
 export const rowMapper = (title, appName, version, selectedRows = []) => ({
@@ -35,6 +37,9 @@ export const rowMapper = (title, appName, version, selectedRows = []) => ({
         {
             title: <Badge>{ version }</Badge>,
             value: version
+        },
+        {
+            title: <Button onClick={ () => {downloadFile(appName, version);} }>Download JSON</Button>
         }
     ]});
 
@@ -110,14 +115,6 @@ export const actions = [
             const appName = data.cells[0].value;
             const appVersion = data.cells[2].value;
             downloadFile(appName, appVersion);
-        }
-    },
-    {
-        title: 'Show raw JSON',
-        onClick: (_event, _rowKey, data) => {
-            const appName = data.cells[0].value;
-            const appVersion = data.cells[2].value;
-            window.open(generateUrl(appName, appVersion), '_blank');
         }
     }
 ];

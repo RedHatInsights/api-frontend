@@ -20,7 +20,7 @@ import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-t
 import { connect } from 'react-redux';
 import { onLoadApis, onSelectRow } from '../store/actions';
 import { SimpleTableFilter } from '@redhat-cloud-services/frontend-components';
-import { filterRows, buildRows, columns, actions, multiDownload } from '../Utilities/overviewRows';
+import { filterRows, buildRows, columns, multiDownload } from '../Utilities/overviewRows';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications';
 
 const Overview = ({ loadApis, services, history, selectRow, onError }) => {
@@ -120,7 +120,6 @@ const Overview = ({ loadApis, services, history, selectRow, onError }) => {
                                 onSort={ (_e, index, direction) => onSortBy({ index, direction }) }
                                 cells={ columns }
                                 rows={ rows }
-                                actions={ actions }
                                 onSelect={ (_e, isSelected, rowKey) => {
                                     if (rowKey === -1) {
                                         selectRow(isSelected, rows);
