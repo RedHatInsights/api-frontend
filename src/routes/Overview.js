@@ -41,7 +41,7 @@ const Overview = ({ loadApis, services, history, selectRow, onError }) => {
     return (
         <React.Fragment>
             <PageHeader className="pf-m-light">
-                <PageHeaderTitle title='Api documentation' />
+                <PageHeaderTitle title='API documentation' />
             </PageHeader>
             <Main className="ins-c-docs__api">
                 <React.Fragment>
