@@ -82,7 +82,7 @@ export function buildRows(sortBy, { page, perPage }, rows, selectedRows) {
                 sortBy.direction === SortByDirection.desc)
         )
         .slice((page - 1) * perPage, page * perPage)
-        .map(({ title, appName, version }) => rowMapper(title, appName, version, selectedRows));
+        .map(({ frontend, title, appName, version }) => rowMapper((frontend && frontend.title) || title, appName, version, selectedRows));
     }
 
     return emptyTable;
