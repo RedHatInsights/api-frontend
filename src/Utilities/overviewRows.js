@@ -10,6 +10,7 @@ import {
 } from '@patternfly/react-core';
 import { sortable, SortByDirection, cellWidth } from '@patternfly/react-table';
 import { EmptyTable } from '@redhat-cloud-services/frontend-components';
+import { ExportIcon } from '@patternfly/react-icons';
 import { oneApi } from '../api';
 import fileDownload from 'js-file-download';
 import JSZip from 'jszip';
@@ -20,7 +21,7 @@ export const columns = [
     { title: 'Application name', transforms: [ sortable ]},
     { title: 'API endpoint', transforms: [ sortable ]},
     { title: 'API version', transforms: [ sortable, cellWidth(10) ]},
-    { title: 'Action', transforms: [ cellWidth(10) ]}
+    { title: 'Download', transforms: [ cellWidth(10) ]}
 ];
 
 export const rowMapper = (title, appName, version, selectedRows = []) => ({
@@ -39,7 +40,7 @@ export const rowMapper = (title, appName, version, selectedRows = []) => ({
             value: version
         },
         {
-            title: <Button onClick={ () => {downloadFile(appName, version);} }>Download JSON</Button>
+            title: <Button variant="plain" onClick={ () => downloadFile(appName, version) }> <ExportIcon /> </Button>
         }
     ]});
 
@@ -107,17 +108,6 @@ export function downloadFile(appName, appVersion) {
         fileDownload(data, `${appName}-openapi.json`);
     });
 }
-
-export const actions = [
-    {
-        title: 'Download JSON',
-        onClick: (_event, _rowKey, data) => {
-            const appName = data.cells[0].value;
-            const appVersion = data.cells[2].value;
-            downloadFile(appName, appVersion);
-        }
-    }
-];
 
 export function multiDownload(selectedRows = {}, onError) {
     const zip = new JSZip();
