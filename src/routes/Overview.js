@@ -67,6 +67,7 @@ const Overview = ({ loadApis, services, history, selectRow, onError }) => {
                                                         .map(({ isSelected }) => isSelected)
                                                         .filter(Boolean).length === 0 }
                                                     onClick={ () => multiDownload(services.selectedRows, onError) }
+                                                    style= { { marginLeft: '1em' } }
                                                 >
                                                     Download Selected
                                                 </Button>
