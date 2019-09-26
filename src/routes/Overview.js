@@ -12,9 +12,7 @@ import {
     Pagination,
     Level,
     LevelItem,
-    Dropdown,
-    DropdownItem,
-    KebabToggle
+    Button
 } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
 import { connect } from 'react-redux';
@@ -33,7 +31,6 @@ const Overview = ({ loadApis, services, history, selectRow, onError }) => {
         page: 1
     });
     const [ filter, onChangeFilter ] = useState('');
-    const [ isOpen, onOpenToggle ] = useState(false);
     const filtered = filter && services.endpoints.filter(row => filterRows(row, filter));
     const rows = services.loaded ?
         buildRows(sortBy, pageSettings, filtered || services.endpoints, services.selectedRows) :
@@ -64,31 +61,16 @@ const Overview = ({ loadApis, services, history, selectRow, onError }) => {
                                                 />
                                             </LevelItem>
                                             <LevelItem>
-                                                <Dropdown
-                                                    dropdownItems={ [
-                                                        <DropdownItem
-                                                            key="download"
-                                                            component="button"
-                                                            onClick={ () => {
-                                                                multiDownload(services.selectedRows, onError);
-                                                            } }
-                                                        >
-                                                            Download selected
-                                                        </DropdownItem>
-                                                    ] }
-                                                    isOpen={ isOpen }
-                                                    onSelect={ () => onOpenToggle(!isOpen) }
-                                                    toggle={
-                                                        <KebabToggle
-                                                            onToggle={ (isOpen) => onOpenToggle(isOpen) }
-                                                            isDisabled={ !services.selectedRows ||
-                                                                Object.values(services.selectedRows || {})
-                                                                .map(({ isSelected }) => isSelected)
-                                                                .filter(Boolean).length === 0 }
-                                                        />
-                                                    }
-                                                    isPlain
-                                                />
+                                                <Button
+                                                    isDisabled={ !services.selectedRows ||
+                                                        Object.values(services.selectedRows || {})
+                                                        .map(({ isSelected }) => isSelected)
+                                                        .filter(Boolean).length === 0 }
+                                                    onClick={ () => multiDownload(services.selectedRows, onError) }
+                                                    className="ins-c-api__download--selected"
+                                                >
+                                                    Download Selected
+                                                </Button>
                                             </LevelItem>
                                         </Level>
                                     </LevelItem>
