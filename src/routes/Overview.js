@@ -67,7 +67,7 @@ const Overview = ({ loadApis, services, history, selectRow, onError }) => {
                                                         .map(({ isSelected }) => isSelected)
                                                         .filter(Boolean).length === 0 }
                                                     onClick={ () => multiDownload(services.selectedRows, onError) }
-                                                    className="ins-c-api__download-selected"
+                                                    className="ins-c-api__download--selected"
                                                 >
                                                     Download Selected
                                                 </Button>
