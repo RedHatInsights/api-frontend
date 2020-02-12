@@ -87,7 +87,26 @@ const Detail = ({ loadApi, detail, match }) => {
                     <Card>
                         <CardBody>
                             { detail.loaded &&
-                                <SwaggerUI spec={ detail.spec } />
+                                <SwaggerUI
+                                    deepLinking
+                                    docExpansion="list"
+                                    spec={ detail.spec }
+                                    onComplete={ (system) => {
+                                        const { layoutActions: { show }} = system;
+                                        system.layoutActions.show = (isShownKey, isShown) => {
+                                            history.replaceState({}, '', `${location.pathname}#${CSS.escape(isShownKey.join('-'))}`);
+                                            show(isShownKey, isShown);
+                                        };
+
+                                        if (location.hash && location.hash.length > 0) {
+                                            const found = document
+                                            .querySelector(`[id$='${location.hash.replace('#', '').replace(/\\./g, '\\\\.')}']`);
+                                            if (found) {
+                                                found.scrollIntoView();
+                                                show(location.hash.replace('#', '').replace(/\\/g, '').split('-'), true);
+                                            }
+                                        }
+                                    } } />
                             }
                             { !detail.loaded &&
                                 <Facebook />
@@ -98,7 +117,7 @@ const Detail = ({ loadApi, detail, match }) => {
             </Main>
             <Modal
                 width={ '50%' }
-                title="Modal Header"
+                title="Spec JSON"
                 isOpen={ isOpen }
                 onClose={ () => onModalToggle(false) }
                 actions={ [

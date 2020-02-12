@@ -25,6 +25,14 @@ export const oneApi = ({ name, version = 'v1' }) => {
     return instance.get(url).then(data => ({
         ...data,
         latest: url,
-        name
+        name,
+        servers: [
+            ...data.servers || [],
+            { url: `/api/${name}/${version}` }
+        ].filter((server, key, array) => array.findIndex(({ url }) => server.url.indexOf(url) === 0) === key)
+        .map(server => ({
+            ...server,
+            url: server.url.indexOf('/') === 0 ? `${location.origin}${server.url}` : server.url
+        }))
     }));
 };
