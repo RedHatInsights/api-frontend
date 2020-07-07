@@ -47,7 +47,7 @@
     "@babel/plugin-transform-runtime": "^7.10.1",
     "@babel/preset-env": "^7.10.2",
     "@babel/preset-react": "^7.10.1",
-    "@redhat-cloud-services/frontend-components-config": "2.0.3",
+    "@redhat-cloud-services/frontend-components-config": "2.1.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.1",
