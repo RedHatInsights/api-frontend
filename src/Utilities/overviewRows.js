@@ -18,7 +18,7 @@ import JSZip from 'jszip';
 import flatten from 'lodash/flatten';
 import { treeTable } from '@redhat-cloud-services/frontend-components/components/TreeTable';
 
-const indexToKey = [ 'title', 'appName', 'version' ];
+const indexToKey = [ 'title', 'title', 'appName', 'version' ]; // pf indexes from 1 not 0
 
 export const columns = (onSetRows) => [
     {
@@ -38,7 +38,7 @@ export const rowMapper = (title, appName, version, selectedRows = [], apiName) =
             title: <Fragment>
                 { version ? <Link to={ `/${apiName}` }>{ title }</Link> : title }
             </Fragment>,
-            value: apiName,
+            value: title,
             props: {
                 value: title,
                 'data-position': 'title'
@@ -75,33 +75,21 @@ export const emptyTable = [{
     }]
 }];
 
-export function sortRows(curr, next, key, isDesc) {
-    if (key !== undefined) {
-        if (isDesc) {
-            return curr[key] < next[key] ? 1 :
-                (next[key] < curr[key]) ? -1 : 0;
-        } else {
-            return curr[key] > next[key] ? 1 :
-                (next[key] > curr[key]) ? -1 : 0;
-        }
-    }
-
-    return 0;
+export function sortRows(curr, next, key = 'title', isDesc) {
+    const getSortKey = (obj) => key === 'appName' && obj.apiName ? 'apiName' : key;
+    return isDesc
+        ? next[getSortKey(next)]?.localeCompare(curr[getSortKey(curr)], 'en', { sensitivity: 'base' })
+        : curr[getSortKey(curr)]?.localeCompare(next[getSortKey(next)], 'en', { sensitivity: 'base' });
 }
 
 export function buildRows(sortBy, { page, perPage }, rows, selectedRows, openedRows) {
     if (rows.length > 0) {
-        return flatten(rows.sort((curr, next) =>
-            sortRows(
-                curr,
-                next,
-                indexToKey[sortBy.index],
-                sortBy.direction === SortByDirection.desc)
-        )
+        return rows
+        .sort((curr, next) => sortRows(curr, next, indexToKey[sortBy.index], sortBy.direction === SortByDirection.desc))
         .slice((page - 1) * perPage, page * perPage).map(({ frontend, title, appName, version, apiName, api }, index) => ([
             {
                 ...rowMapper(
-                    (frontend && frontend.title) || title,
+                    title,
                     `${api.subItems ? 'parent-' : ''}${apiName || appName}`,
                     version,
                     selectedRows,
@@ -118,7 +106,7 @@ export function buildRows(sortBy, { page, perPage }, rows, selectedRows, openedR
                 treeParent: index
             })) : []
         ])
-        ));
+        ).flat();
     }
 
     return emptyTable;
