@@ -18,7 +18,7 @@ import JSZip from 'jszip';
 import flatten from 'lodash/flatten';
 import { treeTable } from '@redhat-cloud-services/frontend-components/components/TreeTable';
 
-const indexToKey = [ 'title', 'title', 'appName', 'version' ]; // pf indexes from 1 not 0
+const indexToKey = [ '', 'title', 'appName', 'version' ]; // pf indexes from 1 not 0
 
 export const columns = (onSetRows) => [
     {
