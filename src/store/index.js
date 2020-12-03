@@ -17,7 +17,7 @@ export function init (...middleware) {
         notificationsMiddleware({
             errorDescriptionKey: [ 'detail', 'stack' ]
         }),
-        ...middleware
+        ...middleware.filter(item => typeof item !== 'undefined')
     ]);
 
     registry.register({ services, detail, notifications });
