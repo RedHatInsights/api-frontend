@@ -7,16 +7,17 @@ import { getBaseName } from '@redhat-cloud-services/frontend-components-utilitie
 import PropTypes from 'prop-types';
 
 const AppEntry = ({ logger }) => {
-    return (
-        <Provider store={ init(logger).getStore() }>
-            <Router basename={ getBaseName(window.location.pathname) }>
-                <App />
-            </Router>
-        </Provider>
-    );};
+  return (
+    <Provider store={init(logger).getStore()}>
+      <Router basename={getBaseName(window.location.pathname)}>
+        <App />
+      </Router>
+    </Provider>
+  );
+};
 
 AppEntry.propTypes = {
-    logger: PropTypes.any
+  logger: PropTypes.any,
 };
 
 export default AppEntry;
