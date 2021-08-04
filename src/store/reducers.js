@@ -3,13 +3,7 @@ import * as ACTIONS from './actionTypes';
 import { versionMapper } from '../api/constants';
 
 const defaultState = { loaded: false, selectedRows: {} };
-const disabledApis = [
-  'automation-analytics',
-  'aiops-insights-clustering',
-  'openshift',
-  'ruledev',
-  'subscriptions',
-];
+const disabledApis = ['automation-analytics', 'openshift', 'ruledev'];
 
 const getAppName = (service) =>
   (service.api.alias && service.api.alias[0]) || service.appName;
