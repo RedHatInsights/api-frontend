@@ -1,7 +1,7 @@
 import { versionMapper, DEFAULT_PREFIX } from './constants';
-import instance from '@redhat-cloud-services/frontend-components-utilities/files/interceptors';
-import { safeLoad } from 'js-yaml';
-export { default as instance } from '@redhat-cloud-services/frontend-components-utilities/files/interceptors';
+import instance from '@redhat-cloud-services/frontend-components-utilities/interceptors';
+import { load } from 'js-yaml';
+export { default as instance } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 
 export const apiList = () => {
   return instance.get(`/${DEFAULT_PREFIX}`);
@@ -13,7 +13,7 @@ export const generateUrl = (appName, appVersion) =>
 export const activeApi = () =>
   instance
     .get(`${insights.chrome.isBeta() ? '/beta' : ''}/config/main.yml`)
-    .then((data) => safeLoad(data))
+    .then((data) => load(data))
     .then((data) => ({
       services: Object.keys(data)
         .filter((oneAppKey) => data[oneAppKey].api)
@@ -23,8 +23,8 @@ export const activeApi = () =>
         })),
     }));
 
-export const oneApi = ({ name, version = 'v1' }) => {
-  const url = generateUrl(name, versionMapper[name] || version);
+export const oneApi = ({ name, version = 'v1', url: defaultUrl }) => {
+  const url = defaultUrl ?? generateUrl(name, versionMapper[name] || version);
   return instance.get(url).then((data) => ({
     ...data,
     latest: url,

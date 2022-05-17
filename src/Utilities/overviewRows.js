@@ -15,13 +15,13 @@ import {
   sortable,
   SortByDirection,
 } from '@patternfly/react-table';
-import { EmptyTable } from '@redhat-cloud-services/frontend-components';
+import { EmptyTable } from '@redhat-cloud-services/frontend-components/EmptyTable';
 import { ExportIcon } from '@patternfly/react-icons';
 import { oneApi } from '../api';
 import fileDownload from 'js-file-download';
 import JSZip from 'jszip';
 import flatten from 'lodash/flatten';
-import { treeTable } from '@redhat-cloud-services/frontend-components/components/TreeTable';
+import { treeTable } from '@redhat-cloud-services/frontend-components/TreeTable';
 
 const indexToKey = ['', 'title', 'appName', 'version']; // pf indexes from 1 not 0
 
@@ -38,18 +38,24 @@ export const columns = (onSetRows) => [
 
 export const rowMapper = (
   title,
-  appName,
-  version,
+  versions,
+  url,
   selectedRows = [],
   apiName
 ) => ({
-  selected: selectedRows?.[appName]?.isSelected,
+  selected: selectedRows?.[title]?.isSelected,
   cells: [
     {
       title: (
         <Fragment>
-          {version ? (
-            <Link to={`/${apiName}${version !== 'v1' ? `/${version}` : ''}`}>
+          {versions || url ? (
+            <Link
+              to={`/${apiName}${
+                versions && versions[0] !== 'v1'
+                  ? `/${apiName}/${versions[0] || ''}`
+                  : ''
+              }${url ? `?url=${url}` : ''}`}
+            >
               {title}
             </Link>
           ) : (
@@ -63,14 +69,44 @@ export const rowMapper = (
         'data-position': 'title',
       },
     },
-    version ? `/api/${apiName}` : '',
-    {
-      title: <Badge>{version}</Badge>,
-      value: version,
-    },
+    versions
+      ? `/api/${apiName}`
+      : url
+      ? {
+          title: (
+            <span className="ins-c-docs__url">
+              {url.replace(/openapi$/, '').replace(/^http(?:s):\/\//, '')}
+            </span>
+          ),
+          props: {
+            colSpan: 2,
+          },
+          value: url,
+        }
+      : '',
+    ...(!url
+      ? [
+          {
+            title: (
+              <Fragment>
+                {versions &&
+                  versions.map((version) => (
+                    <Link key={version} to={`/${apiName}/${version}`}>
+                      <Badge>{version}</Badge>
+                    </Link>
+                  ))}
+              </Fragment>
+            ),
+            value: versions,
+          },
+        ]
+      : []),
     {
       title: (
-        <Button variant="plain" onClick={() => downloadFile(apiName, version)}>
+        <Button
+          variant="plain"
+          onClick={() => downloadFile(apiName, versions?.[0], url)}
+        >
           {' '}
           <ExportIcon />{' '}
         </Button>
@@ -140,8 +176,8 @@ export function buildRows(
         {
           ...rowMapper(
             title,
-            `${api.subItems ? 'parent-' : ''}${apiName || appName}`,
-            version,
+            api.versions,
+            api.url,
             selectedRows,
             apiName || appName
           ),
@@ -151,15 +187,15 @@ export function buildRows(
             ),
             subItems: api.subItems,
           }),
-          noDetail: !version,
+          noDetail: !version && !api.url,
         },
         ...(api.subItems
           ? Object.entries(api.subItems).map(
-              ([key, { title, versions, apiName }]) => ({
+              ([key, { title, versions, url, apiName }]) => ({
                 ...rowMapper(
                   title,
-                  apiName || key,
-                  versions?.[0],
+                  versions,
+                  url,
                   selectedRows,
                   apiName || key
                 ),
@@ -198,8 +234,8 @@ export function filterRows(row, filter) {
   );
 }
 
-export function downloadFile(appName, appVersion) {
-  oneApi({ name: appName, version: appVersion }).then((data) => {
+export function downloadFile(appName, appVersion, url) {
+  oneApi({ name: appName, version: appVersion, url }).then((data) => {
     delete data.latest;
     delete data.name;
     fileDownload(JSON.stringify(data), `${appName}-openapi.json`);
@@ -210,17 +246,17 @@ export function multiDownload(selectedRows = {}, onError) {
   const zip = new JSZip();
   const allFiles = Object.values(selectedRows)
     .filter(({ isSelected }) => isSelected)
-    .map(({ appName, version, apiName, subItems }) => {
+    .map(({ appName, version, apiName, subItems, url }) => {
       if (subItems) {
-        return Object.entries(subItems).map(([key, { versions }]) =>
-          oneApi({ name: key, version: versions[0] }).catch(() =>
+        return Object.entries(subItems).map(([key, { versions, url }]) =>
+          oneApi({ name: key, version: versions?.[0], url }).catch(() =>
             onError(
               `API ${key} with version ${versions[0]} not found or broken.`
             )
           )
         );
       } else {
-        return oneApi({ name: apiName || appName, version }).catch(() =>
+        return oneApi({ name: apiName || appName, version, url }).catch(() =>
           onError(
             `API ${
               apiName || appName

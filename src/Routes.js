@@ -1,4 +1,4 @@
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes as DomRoutes } from 'react-router-dom';
 import React, { lazy, Suspense, Fragment } from 'react';
 const Overview = lazy(() =>
   import(/* webpackChunkName: "Overview" */ './routes/Overview')
@@ -16,12 +16,12 @@ const paths = {
 export const Routes = () => {
   return (
     <Suspense fallback={<Fragment />}>
-      <Switch>
-        <Route exact path={paths.overview} component={Overview} />
-        <Route exact path={paths.detail} component={Detail} />
-        <Route exact path={paths.detailVersioned} component={Detail} />
-        <Route component={Overview} />
-      </Switch>
+      <DomRoutes>
+        <Route exact path={paths.overview} element={<Overview />} />
+        <Route exact path={paths.detail} element={<Detail />} />
+        <Route exact path={paths.detailVersioned} element={<Detail />} />
+        <Route element={<Overview />} />
+      </DomRoutes>
     </Suspense>
   );
 };

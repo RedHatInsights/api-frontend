@@ -3,15 +3,16 @@ import PropTypes from 'prop-types';
 import {
   PageHeader,
   PageHeaderTitle,
-  Main,
-  SkeletonTable,
-  TableToolbar,
-  PrimaryToolbar,
-} from '@redhat-cloud-services/frontend-components';
+} from '@redhat-cloud-services/frontend-components/PageHeader';
+
+import { Main } from '@redhat-cloud-services/frontend-components/Main';
+import { SkeletonTable } from '@redhat-cloud-services/frontend-components/SkeletonTable';
+import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
+import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryToolbar';
 import {
   TreeRowWrapper,
   sizeCalculator,
-} from '@redhat-cloud-services/frontend-components/components/TreeTable';
+} from '@redhat-cloud-services/frontend-components/TreeTable';
 import { Pagination } from '@patternfly/react-core';
 import {
   Table,
@@ -27,7 +28,7 @@ import {
   columns,
   multiDownload,
 } from '../Utilities/overviewRows';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/cjs/actions';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
 
 const isNotSelected = ({ selectedRows }) => {
   return (
