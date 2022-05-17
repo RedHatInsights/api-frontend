@@ -89,12 +89,11 @@ export const rowMapper = (
           {
             title: (
               <Fragment>
-                {versions &&
-                  versions.map((version) => (
-                    <Link key={version} to={`/${apiName}/${version}`}>
-                      <Badge>{version}</Badge>
-                    </Link>
-                  ))}
+                {versions?.map?.((version) => (
+                  <Link key={version} to={`/${apiName}/${version}`}>
+                    <Badge>{version}</Badge>
+                  </Link>
+                ))}
               </Fragment>
             ),
             value: versions,
