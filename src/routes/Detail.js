@@ -41,7 +41,11 @@ const Detail = ({ loadApi, detail }) => {
   const query = useQuery();
   const { auth } = useChrome();
   useEffect(() => {
-    loadApi(apiName, version, query.get('url'));
+    loadApi(apiName, version, query.get('url'), {
+      owner: query.get('github-owner'),
+      repo: query.get('github-repo'),
+      content: query.get('github-content'),
+    });
   }, []);
 
   const requestInterceptor = useCallback(
@@ -218,7 +222,7 @@ export default connect(
     detail,
   }),
   (dispatch) => ({
-    loadApi: (api, version, url) =>
-      dispatch(onLoadOneApi({ name: api, version, url })),
+    loadApi: (api, version, url, github) =>
+      dispatch(onLoadOneApi({ name: api, version, url, github })),
   })
 )(Detail);
