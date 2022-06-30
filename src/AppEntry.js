@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import logger from 'redux-logger';
 
 const AppEntry = ({ isDev }) => {
-  const registry = isDev ? init(logger) : init(logger);
+  const registry = isDev ? init(logger) : init();
   return (
     <RegistryContext.Provider
       value={{
