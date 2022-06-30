@@ -5,8 +5,7 @@ import {
   PageHeaderTitle,
 } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { Main } from '@redhat-cloud-services/frontend-components/Main';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
 import SwaggerUI from 'swagger-ui-react';
 import 'swagger-ui-react/swagger-ui.css';
 import { onLoadOneApi } from '../store/actions';
@@ -36,16 +35,28 @@ import ReactJson from 'react-json-view';
 import { useQuery } from '../Utilities/hooks';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
-const Detail = ({ loadApi, detail }) => {
+const Detail = () => {
+  const dispatch = useDispatch();
+  const loaded = useSelector(({ detail: { loaded } }) => loaded);
+  const spec = useSelector(({ detail: { spec } }) => spec);
+  const error = useSelector(({ detail: { error } }) => error);
+  const latest = useSelector(({ detail: { latest } }) => latest);
   const { apiName, version = 'v1' } = useParams();
   const query = useQuery();
   const { auth } = useChrome();
   useEffect(() => {
-    loadApi(apiName, version, query.get('url'), {
-      owner: query.get('github-owner'),
-      repo: query.get('github-repo'),
-      content: query.get('github-content'),
-    });
+    dispatch(
+      onLoadOneApi({
+        name: apiName,
+        version,
+        url: query.get('url'),
+        github: {
+          owner: query.get('github-owner'),
+          repo: query.get('github-repo'),
+          content: query.get('github-content'),
+        },
+      })
+    );
   }, []);
 
   const requestInterceptor = useCallback(
@@ -74,11 +85,11 @@ const Detail = ({ loadApi, detail }) => {
                 <BreadcrumbItem isActive>{apiName}</BreadcrumbItem>
               </Breadcrumb>
               <React.Fragment>
-                {detail.loaded && !detail.error && (
+                {loaded && !error && (
                   <Level className="ins-c-docs__api-detail">
                     <LevelItem className="ins-c-docs__api-detail-info">
-                      {detail.loaded ? (
-                        `Detail of ${detail.spec?.info?.title}`
+                      {loaded ? (
+                        `Detail of ${spec?.info?.title}`
                       ) : (
                         <Skeleton size={SkeletonSize.md} />
                       )}
@@ -86,15 +97,15 @@ const Detail = ({ loadApi, detail }) => {
                     <LevelItem>
                       <Split hasGutter>
                         <SplitItem className="ins-c-docs__api-detail-info">
-                          {detail.loaded && !detail.error ? (
+                          {loaded && !error ? (
                             <TextContent>
                               <Text
                                 component="a"
                                 href={`${
-                                  detail.latest.includes('https://')
+                                  latest.includes('https://')
                                     ? ''
                                     : location.origin
-                                }${detail.latest}`}
+                                }${latest}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
@@ -106,7 +117,7 @@ const Detail = ({ loadApi, detail }) => {
                           )}
                         </SplitItem>
                         <SplitItem className="ins-c-docs__api-detail-info">
-                          {detail.loaded ? (
+                          {loaded ? (
                             <Button
                               onClick={() => onModalToggle(true)}
                               variant={ButtonVariant.secondary}
@@ -130,11 +141,11 @@ const Detail = ({ loadApi, detail }) => {
         <React.Fragment>
           <Card>
             <CardBody>
-              {detail.loaded && (
+              {loaded && (
                 <SwaggerUI
                   deepLinking
                   docExpansion="list"
-                  spec={detail.spec}
+                  spec={spec}
                   requestInterceptor={requestInterceptor}
                   onComplete={(system) => {
                     const {
@@ -171,7 +182,7 @@ const Detail = ({ loadApi, detail }) => {
                   }}
                 />
               )}
-              {!detail.loaded && <Facebook />}
+              {!loaded && <Facebook />}
             </CardBody>
           </Card>
         </React.Fragment>
@@ -194,35 +205,11 @@ const Detail = ({ loadApi, detail }) => {
         <ReactJson
           displayDataTypes={false}
           shouldCollapse={({ name }) => name !== 'root' && name !== 'paths'}
-          src={detail.spec}
+          src={spec}
         />
       </Modal>
     </React.Fragment>
   );
 };
 
-Detail.propTypes = {
-  loadApi: PropTypes.func,
-  detail: PropTypes.shape({
-    loaded: PropTypes.bool,
-    spec: PropTypes.string,
-    error: PropTypes.bool,
-    latest: PropTypes.string,
-  }),
-};
-Detail.defaultProps = {
-  loadApi: () => undefined,
-  detail: {
-    loaded: false,
-  },
-};
-
-export default connect(
-  ({ detail }) => ({
-    detail,
-  }),
-  (dispatch) => ({
-    loadApi: (api, version, url, github) =>
-      dispatch(onLoadOneApi({ name: api, version, url, github })),
-  })
-)(Detail);
+export default Detail;

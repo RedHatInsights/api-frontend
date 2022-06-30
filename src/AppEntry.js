@@ -5,9 +5,10 @@ import { init, RegistryContext } from './store';
 import App from './App';
 import { getBaseName } from '@redhat-cloud-services/frontend-components-utilities/helpers';
 import PropTypes from 'prop-types';
+import logger from 'redux-logger';
 
-const AppEntry = ({ logger }) => {
-  const registry = logger ? init(logger) : init();
+const AppEntry = ({ isDev }) => {
+  const registry = isDev ? init(logger) : init(logger);
   return (
     <RegistryContext.Provider
       value={{
@@ -24,7 +25,7 @@ const AppEntry = ({ logger }) => {
 };
 
 AppEntry.propTypes = {
-  logger: PropTypes.any,
+  isDev: PropTypes.bool,
 };
 
 export default AppEntry;
