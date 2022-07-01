@@ -23,9 +23,25 @@ export const activeApi = () =>
         })),
     }));
 
-export const oneApi = ({ name, version = 'v1', url: defaultUrl }) => {
-  const url = defaultUrl ?? generateUrl(name, versionMapper[name] || version);
-  return instance.get(url).then((data) => ({
+export const getSpec = (url, isGithub) => {
+  const spec = instance.get(url);
+  if (isGithub) {
+    return spec.then(({ content }) => load(Buffer.from(content, 'base64')));
+  }
+
+  return spec;
+};
+
+export const isValidGithub = ({ owner, repo, content } = {}) => {
+  return owner && repo && content;
+};
+
+export const oneApi = ({ name, version = 'v1', url: defaultUrl, github }) => {
+  const url = isValidGithub(github)
+    ? `https://api.github.com/repos/${github.owner}/${github.repo}/contents/${github.content}`
+    : defaultUrl ?? generateUrl(name, versionMapper[name] || version);
+  const spec = getSpec(url, isValidGithub(github));
+  return spec.then((data) => ({
     ...data,
     latest: url,
     name,
