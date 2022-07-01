@@ -152,14 +152,13 @@ const Detail = () => {
                       layoutActions: { show },
                     } = system;
                     system.layoutActions.show = (isShownKey, isShown) => {
+                      const pathName = location.pathname;
+                      show(isShownKey, isShown);
                       history.replaceState(
                         {},
                         '',
-                        `${location.pathname}#${CSS.escape(
-                          isShownKey.join('-')
-                        )}`
+                        `${pathName}#${CSS.escape(isShownKey.join('-'))}`
                       );
-                      show(isShownKey, isShown);
                     };
 
                     if (location.hash && location.hash.length > 0) {
