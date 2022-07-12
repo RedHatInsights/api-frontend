@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import {
   PageHeader,
   PageHeaderTitle,
@@ -20,7 +19,7 @@ import {
   TableBody,
   TableVariant,
 } from '@patternfly/react-table';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { onLoadApis, onSelectRow } from '../store/actions';
 import {
   filterRows,
@@ -39,10 +38,18 @@ const isNotSelected = ({ selectedRows }) => {
   );
 };
 
-const Overview = ({ loadApis, services, selectRow, onError }) => {
+const Overview = () => {
+  const dispatch = useDispatch();
   useEffect(() => {
-    loadApis();
+    dispatch(onLoadApis());
   }, []);
+  const loaded = useSelector(({ services: { loaded } }) => loaded);
+  const selectedRows = useSelector(
+    ({ services: { selectedRows } }) => selectedRows
+  );
+  const endpoints = useSelector(
+    ({ services: { endpoints } }) => endpoints || []
+  );
   const [openedRows, setOpenedRows] = useState([]);
   const [sortBy, onSortBy] = useState({});
   const [pageSettings, onPaginate] = useState({
@@ -50,14 +57,13 @@ const Overview = ({ loadApis, services, selectRow, onError }) => {
     page: 1,
   });
   const [filter, onChangeFilter] = useState('');
-  const filtered =
-    filter && services.endpoints.filter((row) => filterRows(row, filter));
-  const rows = services.loaded
+  const filtered = filter && endpoints.filter((row) => filterRows(row, filter));
+  const rows = loaded
     ? buildRows(
         sortBy,
         pageSettings,
-        filtered || services.endpoints,
-        services.selectedRows,
+        filtered || endpoints,
+        selectedRows,
         openedRows
       )
     : [];
@@ -94,7 +100,7 @@ const Overview = ({ loadApis, services, selectRow, onError }) => {
                       });
                       onChangeFilter(value);
                     },
-                    isDisabled: !services.loaded,
+                    isDisabled: !loaded,
                   },
                 },
               ],
@@ -104,17 +110,26 @@ const Overview = ({ loadApis, services, selectRow, onError }) => {
                 {
                   label: 'Download selected',
                   props: {
-                    isDisabled: isNotSelected(services),
+                    isDisabled: isNotSelected({ selectedRows }),
                     onClick: () =>
-                      multiDownload(services.selectedRows, onError),
+                      multiDownload(selectedRows, (error) =>
+                        dispatch(
+                          addNotification({
+                            variant: 'danger',
+                            title: 'Server error',
+                            description: error,
+                            dismissable: true,
+                          })
+                        )
+                      ),
                   },
                 },
               ],
             }}
-            {...(services.loaded && {
+            {...(loaded && {
               pagination: {
                 ...pageSettings,
-                itemCount: (filtered || services.endpoints).length,
+                itemCount: (filtered || endpoints).length,
                 onSetPage: (_e, page) =>
                   onPaginate({
                     ...pageSettings,
@@ -144,7 +159,7 @@ const Overview = ({ loadApis, services, selectRow, onError }) => {
               },
             })}
           />
-          {services.loaded ? (
+          {loaded ? (
             <Table
               className="pf-m-expandable pf-c-treeview"
               aria-label="Sortable Table"
@@ -154,12 +169,12 @@ const Overview = ({ loadApis, services, selectRow, onError }) => {
               cells={columns(onSetRows)}
               rows={sizeCalculator(rows)}
               rowWrapper={TreeRowWrapper}
-              {...((filtered || services.endpoints).length > 0 && {
+              {...((filtered || endpoints).length > 0 && {
                 onSelect: (_e, isSelected, rowKey) => {
                   if (rowKey === -1) {
-                    selectRow(isSelected, rows);
+                    dispatch(onSelectRow({ isSelected, row: rows }));
                   } else {
-                    selectRow(isSelected, rows[rowKey]);
+                    dispatch(onSelectRow({ isSelected, row: rows[rowKey] }));
                   }
                 },
               })}
@@ -172,11 +187,11 @@ const Overview = ({ loadApis, services, selectRow, onError }) => {
           )}
         </React.Fragment>
         <TableToolbar isFooter>
-          {services.loaded ? (
+          {loaded ? (
             <Pagination
               variant="bottom"
               dropDirection="up"
-              itemCount={(filtered || services.endpoints).length}
+              itemCount={(filtered || endpoints).length}
               perPage={pageSettings.perPage}
               page={pageSettings.page}
               onSetPage={(_e, page) =>
@@ -201,55 +216,4 @@ const Overview = ({ loadApis, services, selectRow, onError }) => {
   );
 };
 
-Overview.propTypes = {
-  loadApis: PropTypes.func,
-  onError: PropTypes.func,
-  services: PropTypes.shape({
-    loaded: PropTypes.bool,
-    selectedRows: PropTypes.shape({
-      isSelected: PropTypes.bool,
-    }),
-    endpoints: PropTypes.arrayOf(
-      PropTypes.shape({
-        [PropTypes.string]: PropTypes.oneOfType([
-          PropTypes.string,
-          PropTypes.number,
-          PropTypes.bool,
-          PropTypes.node,
-        ]),
-      })
-    ),
-  }),
-  history: PropTypes.shape({
-    push: PropTypes.func,
-  }),
-  selectRow: PropTypes.func,
-};
-Overview.defaultProps = {
-  loadApis: () => undefined,
-  selectRow: () => undefined,
-  onError: () => undefined,
-  services: {
-    loaded: false,
-    selectedRows: {},
-  },
-};
-
-export default connect(
-  ({ services }) => ({
-    services,
-  }),
-  (dispatch) => ({
-    loadApis: () => dispatch(onLoadApis()),
-    selectRow: (isSelected, row) => dispatch(onSelectRow({ isSelected, row })),
-    onError: (error) =>
-      dispatch(
-        addNotification({
-          variant: 'danger',
-          title: 'Server error',
-          description: error,
-          dismissable: true,
-        })
-      ),
-  })
-)(Overview);
+export default Overview;
