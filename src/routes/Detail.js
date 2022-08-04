@@ -145,6 +145,9 @@ const Detail = () => {
               {loaded && (
                 <SwaggerUI
                   docExpansion="list"
+                  {...(query.get('readonly') && {
+                    supportedSubmitMethods: [''],
+                  })}
                   spec={spec}
                   requestInterceptor={requestInterceptor}
                   onComplete={(system) => {
