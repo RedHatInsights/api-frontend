@@ -144,6 +144,7 @@ const Detail = () => {
               {loaded && (
                 <SwaggerUI
                   deepLinking
+                  tryItOutEnabled={false} // how to use readonly from config?
                   docExpansion="list"
                   spec={spec}
                   requestInterceptor={requestInterceptor}
