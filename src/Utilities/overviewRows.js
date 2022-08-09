@@ -36,13 +36,28 @@ export const columns = (onSetRows) => [
   { title: 'Download', transforms: [cellWidth(10)] },
 ];
 
+const constructParams = (url, github, config) => {
+  const params = new URLSearchParams();
+  url && params.set('url', url);
+  if (github) {
+    params.set('github-owner', github.owner);
+    params.set('github-repo', github.repo);
+    params.set('github-content', github.path);
+  }
+  Object.entries(config).forEach(([key, value]) => {
+    value && params.set(key, value);
+  });
+  return params.toString();
+};
+
 export const rowMapper = (
   title,
   versions,
   url,
   github,
   selectedRows = [],
-  apiName
+  apiName,
+  config
 ) => ({
   selected: selectedRows?.[title]?.isSelected,
   cells: [
@@ -55,11 +70,9 @@ export const rowMapper = (
                 versions && versions[0] && versions[0] !== 'v1'
                   ? `/${versions[0]}`
                   : ''
-              }${url || github ? '?' : ''}${url ? `url=${url}` : ''}${
-                github
-                  ? `github-owner=${github.owner}&github-repo=${github.repo}&github-content=${github.path}`
-                  : ''
-              }`}
+              }${
+                url || github || Object.values(config).length > 0 ? '?' : ''
+              }${constructParams(url, github, config)}`}
             >
               {title}
             </Link>
@@ -207,7 +220,8 @@ export function buildRows(
             api.url,
             api.github,
             selectedRows,
-            apiName || appName
+            apiName || appName,
+            { readonly: api.readonly }
           ),
           ...(api.subItems && {
             isTreeOpen: openedRows?.includes?.(
@@ -219,14 +233,15 @@ export function buildRows(
         },
         ...(api.subItems
           ? Object.entries(api.subItems).map(
-              ([key, { title, versions, url, apiName, github }]) => ({
+              ([key, { title, versions, url, apiName, github, readonly }]) => ({
                 ...rowMapper(
                   title,
                   versions,
                   url,
                   github,
                   selectedRows,
-                  apiName || key
+                  apiName || key,
+                  { readonly }
                 ),
                 treeParent: index,
               })
