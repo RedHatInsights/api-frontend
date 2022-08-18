@@ -29,7 +29,7 @@ import {
   TextContent,
   Text,
 } from '@patternfly/react-core';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import ReactJson from 'react-json-view';
 import { useQuery } from '../Utilities/hooks';
@@ -42,6 +42,7 @@ const Detail = () => {
   const error = useSelector(({ detail: { error } }) => error);
   const latest = useSelector(({ detail: { latest } }) => latest);
   const { apiName, version = 'v1' } = useParams();
+  const navigate = useNavigate();
   const query = useQuery();
   const { auth } = useChrome();
   useEffect(() => {
@@ -143,8 +144,10 @@ const Detail = () => {
             <CardBody>
               {loaded && (
                 <SwaggerUI
-                  deepLinking
                   docExpansion="list"
+                  {...(query.get('readonly') && {
+                    supportedSubmitMethods: [''],
+                  })}
                   spec={spec}
                   requestInterceptor={requestInterceptor}
                   onComplete={(system) => {
@@ -152,13 +155,15 @@ const Detail = () => {
                       layoutActions: { show },
                     } = system;
                     system.layoutActions.show = (isShownKey, isShown) => {
-                      const pathName = location.pathname;
+                      const newHash = CSS.escape(isShownKey.join('-'));
+                      const oldHash = location.hash?.replace('#', '');
                       show(isShownKey, isShown);
-                      history.replaceState(
-                        {},
-                        '',
-                        `${pathName}#${CSS.escape(isShownKey.join('-'))}`
-                      );
+                      if (isShown && newHash !== oldHash) {
+                        navigate(
+                          `/${apiName}/${version}?${query.toString()}#${newHash}`,
+                          { replace: true }
+                        );
+                      }
                     };
 
                     if (location.hash && location.hash.length > 0) {
