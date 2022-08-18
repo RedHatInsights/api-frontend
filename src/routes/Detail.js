@@ -156,9 +156,7 @@ const Detail = () => {
                     } = system;
                     system.layoutActions.show = (isShownKey, isShown) => {
                       const newHash = CSS.escape(isShownKey.join('-'));
-                      const oldHash = location.hash
-                        ?.replace('#', '')
-                        ?.replace(/\\./g, '\\\\.');
+                      const oldHash = location.hash?.replace('#', '');
                       show(isShownKey, isShown);
                       if (isShown && newHash !== oldHash) {
                         navigate(
