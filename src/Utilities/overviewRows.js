@@ -21,15 +21,15 @@ import { oneApi } from '../api';
 import fileDownload from 'js-file-download';
 import JSZip from 'jszip';
 import flatten from 'lodash/flatten';
-import { treeTable } from '@redhat-cloud-services/frontend-components/TreeTable';
+import { treeRow } from '@patternfly/react-table';
 
 const indexToKey = ['', 'title', 'appName', 'version']; // pf indexes from 1 not 0
 
-export const columns = (onSetRows) => [
+export const columns = (onSetRows, onRowSelected) => [
   {
     title: 'Application name',
     transforms: [sortable],
-    cellTransforms: [treeTable(onSetRows)],
+    cellTransforms: [...(onSetRows ? [treeRow(onSetRows, onRowSelected)] : [])],
   },
   { title: 'API endpoint', transforms: [nowrap, sortable, cellWidth(10)] },
   { title: 'API version', transforms: [nowrap, sortable, cellWidth(10)] },
@@ -59,7 +59,9 @@ export const rowMapper = (
   apiName,
   config
 ) => ({
-  selected: selectedRows?.[title]?.isSelected,
+  selected:
+    selectedRows?.[title]?.isSelected ||
+    selectedRows?.[`parent-${title}`]?.isSelected,
   cells: [
     {
       title: (
@@ -202,6 +204,7 @@ export function buildRows(
   openedRows
 ) {
   if (rows.length > 0) {
+    let rowIndex = 0;
     return rows
       .sort((curr, next) =>
         sortRows(
@@ -212,42 +215,54 @@ export function buildRows(
         )
       )
       .slice((page - 1) * perPage, page * perPage)
-      .map(({ frontend, title, appName, version, apiName, api }, index) => [
-        {
-          ...rowMapper(
-            title,
-            api.versions,
-            api.url,
-            api.github,
-            selectedRows,
-            apiName || appName,
-            { readonly: api.readonly }
-          ),
-          ...(api.subItems && {
-            isTreeOpen: openedRows?.includes?.(
-              (frontend && frontend.title) || title
+      .map(({ frontend, title, appName, version, apiName, api }, index) => {
+        const row = [
+          {
+            ...rowMapper(
+              title,
+              api.versions,
+              api.url,
+              api.github,
+              selectedRows,
+              apiName || appName,
+              { readonly: api.readonly }
             ),
-            subItems: api.subItems,
-          }),
-          noDetail: !version && !api.url && !api.github,
-        },
-        ...(api.subItems
-          ? Object.entries(api.subItems).map(
-              ([key, { title, versions, url, apiName, github, readonly }]) => ({
-                ...rowMapper(
-                  title,
-                  versions,
-                  url,
-                  github,
-                  selectedRows,
-                  apiName || key,
-                  { readonly }
-                ),
-                treeParent: index,
-              })
-            )
-          : []),
-      ])
+            ...(api.subItems && {
+              isTreeOpen: openedRows?.includes?.(
+                (frontend && frontend.title) || title
+              ),
+              subItems: api.subItems,
+            }),
+            noDetail: !version && !api.url && !api.github,
+            posinset: index + 1,
+          },
+          ...(api.subItems
+            ? Object.entries(api.subItems).map(
+                (
+                  [key, { title, versions, url, apiName, github, readonly }],
+                  subItemIndex
+                ) => {
+                  return {
+                    ...rowMapper(
+                      title,
+                      versions,
+                      url,
+                      github,
+                      selectedRows,
+                      apiName || key,
+                      { readonly }
+                    ),
+                    treeParent: rowIndex,
+                    posinset: subItemIndex + 1,
+                  };
+                }
+              )
+            : []),
+        ];
+        rowIndex =
+          rowIndex + (api.subItems ? Object.keys(api.subItems).length + 1 : 1);
+        return row;
+      })
       .flat();
   }
 
@@ -283,7 +298,7 @@ export function downloadFile(appName, appVersion, url, github) {
     name: appName,
     version: appVersion,
     url,
-    github: { ...github, content: github.path },
+    github: { ...github, content: github?.path },
   }).then((data) => {
     delete data.latest;
     delete data.name;
