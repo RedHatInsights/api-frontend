@@ -210,6 +210,9 @@ const Detail = () => {
           displayDataTypes={false}
           shouldCollapse={({ name }) => name !== 'root' && name !== 'paths'}
           src={spec}
+          enableClipboard={({ src }) =>
+            navigator.clipboard.writeText(JSON.stringify(src, null, 2))
+          }
         />
       </Modal>
     </React.Fragment>
