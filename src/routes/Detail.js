@@ -34,6 +34,7 @@ import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import ReactJson from 'react-json-view';
 import { useQuery } from '../Utilities/hooks';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { BASENAME } from '../Utilities/const';
 
 const Detail = () => {
   const dispatch = useDispatch();
@@ -81,7 +82,7 @@ const Detail = () => {
             <React.Fragment>
               <Breadcrumb>
                 <BreadcrumbItem>
-                  <Link to="/">Overview</Link>
+                  <Link to={BASENAME}>Overview</Link>
                 </BreadcrumbItem>
                 <BreadcrumbItem isActive>{apiName}</BreadcrumbItem>
               </Breadcrumb>
@@ -160,7 +161,7 @@ const Detail = () => {
                       show(isShownKey, isShown);
                       if (isShown && newHash !== oldHash) {
                         navigate(
-                          `/${apiName}/${version}?${query.toString()}#${newHash}`,
+                          `${BASENAME}/${apiName}/${version}?${query.toString()}#${newHash}`,
                           { replace: true }
                         );
                       }

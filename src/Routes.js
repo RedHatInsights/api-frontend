@@ -1,5 +1,6 @@
 import { Route, Routes as DomRoutes } from 'react-router-dom';
 import React, { lazy, Suspense, Fragment } from 'react';
+import { BASENAME } from './Utilities/const';
 const Overview = lazy(() =>
   import(/* webpackChunkName: "Overview" */ './routes/Overview')
 );
@@ -8,9 +9,9 @@ const Detail = lazy(() =>
 );
 
 const paths = {
-  overview: '/',
-  detail: '/:apiName',
-  detailVersioned: '/:apiName/:version',
+  overview: `${BASENAME}/`,
+  detail: `${BASENAME}/:apiName`,
+  detailVersioned: `${BASENAME}/:apiName/:version`,
 };
 
 export const Routes = () => {
