@@ -43,7 +43,8 @@
     ],
     "moduleNameMapper": {
       "\\.(css|scss)$": "identity-obj-proxy"
-    }
+    },
+    "test": "TZ=UTC jest --verbose --no-cache"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
