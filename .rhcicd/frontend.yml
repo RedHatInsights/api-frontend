@@ -11,9 +11,6 @@ objects:
       envName: ${ENV_NAME}
       title: API Frontend
       deploymentRepo: https://github.com/RedHatInsights/api-frontend
-      API:
-        versions:
-          - v1
       frontend:
         paths:
           - /apps/api-docs
