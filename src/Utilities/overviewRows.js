@@ -22,6 +22,7 @@ import fileDownload from 'js-file-download';
 import JSZip from 'jszip';
 import flatten from 'lodash/flatten';
 import { treeRow } from '@patternfly/react-table';
+import { BASENAME } from './const';
 
 const indexToKey = ['', 'title', 'appName', 'version']; // pf indexes from 1 not 0
 
@@ -68,7 +69,7 @@ export const rowMapper = (
         <Fragment>
           {versions || url || github ? (
             <Link
-              to={`/${apiName}${
+              to={`${BASENAME}/${apiName}${
                 versions && versions[0] && versions[0] !== 'v1'
                   ? `/${versions[0]}`
                   : ''
@@ -133,7 +134,7 @@ export const rowMapper = (
             title: (
               <Fragment>
                 {versions?.map?.((version) => (
-                  <Link key={version} to={`/${apiName}/${version}`}>
+                  <Link key={version} to={`${BASENAME}/${apiName}/${version}`}>
                     <Badge>{version}</Badge>
                   </Link>
                 ))}
