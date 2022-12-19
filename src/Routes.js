@@ -8,19 +8,18 @@ const Detail = lazy(() =>
 );
 
 const paths = {
-  overview: '/',
-  detail: '/:apiName',
-  detailVersioned: '/:apiName/:version',
+  overview: '*',
+  detail: ':apiName/*',
+  detailVersioned: ':apiName/:version/*',
 };
 
 export const Routes = () => {
   return (
     <Suspense fallback={<Fragment />}>
       <DomRoutes>
-        <Route exact path={paths.overview} element={<Overview />} />
-        <Route exact path={paths.detail} element={<Detail />} />
-        <Route exact path={paths.detailVersioned} element={<Detail />} />
-        <Route element={<Overview />} />
+        <Route path={paths.detail} element={<Detail />} />
+        <Route path={paths.detailVersioned} element={<Detail />} />
+        <Route path={paths.overview} element={<Overview />} />
       </DomRoutes>
     </Suspense>
   );
