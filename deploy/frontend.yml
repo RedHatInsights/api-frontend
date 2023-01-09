@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: api-docs
+objects:
+  - apiVersion: cloud.redhat.com/v1alpha1
+    kind: Frontend
+    metadata:
+      name: api-docs
+    spec:
+      envName: ${ENV_NAME}
+      title: "API Frontend"
+      deploymentRepo: https://github.com/RedHatInsights/api-frontend
+      API:
+        versions:
+          - v1
+      frontend:
+        paths:
+          - /apps/api-docs
+      image: ${IMAGE}:${IMAGE_TAG}
+      navItems:
+        - title: "API Documentation"
+          appId: apiDocs
+          href: /docs/api
+      module:
+        manifestLocation: /apps/api-docs/fed-mods.json
+        modules:
+          - id: api-docs
+            module: ./RootApp
+            routes:
+              - pathname: /docs/api
+              - pathname: /docs
+        moduleID: apiDocs
+parameters:
+  - name: ENV_NAME
+    required: true
+  - name: IMAGE_TAG
+    required: true
+  - name: IMAGE
+    value: quay.io/cloudservices/api-frontend
+
