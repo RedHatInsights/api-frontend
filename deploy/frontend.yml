@@ -9,14 +9,17 @@ objects:
       name: api-docs
     spec:
       envName: ${ENV_NAME}
-      title: API Frontend
+      title: "API Frontend"
       deploymentRepo: https://github.com/RedHatInsights/api-frontend
+      API:
+        versions:
+          - v1
       frontend:
         paths:
           - /apps/api-docs
       image: ${IMAGE}:${IMAGE_TAG}
       navItems:
-        - title: API Documentation
+        - title: "API Documentation"
           appId: apiDocs
           href: /docs/api
       module:
