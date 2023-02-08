@@ -51,9 +51,6 @@ const checkChildrenSelection = (selectedRows, subItems, checkAll = false) => {
 
 const Overview = () => {
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(onLoadApis());
-  }, []);
   const loaded = useSelector(({ services: { loaded } }) => loaded);
   const selectedRows = useSelector(
     ({ services: { selectedRows } }) => selectedRows
@@ -61,6 +58,11 @@ const Overview = () => {
   const endpoints = useSelector(
     ({ services: { endpoints } }) => endpoints || []
   );
+  useEffect(() => {
+    if (!loaded) {
+      dispatch(onLoadApis());
+    }
+  }, [loaded]);
   const [openedRows, setOpenedRows] = useState([]);
   const [sortBy, onSortBy] = useState({});
   const [pageSettings, onPaginate] = useState({
