@@ -12,7 +12,7 @@
     "@patternfly/react-table": "^4.111.4",
     "@redhat-cloud-services/frontend-components": "^3.9.22",
     "@redhat-cloud-services/frontend-components-notifications": "^3.2.12",
-    "@redhat-cloud-services/frontend-components-utilities": "^3.3.5",
+    "@redhat-cloud-services/frontend-components-utilities": "^3.3.14",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.7",
     "classnames": "^2.3.2",
     "js-file-download": "^0.4.12",
