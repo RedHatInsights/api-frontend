@@ -7,7 +7,7 @@ import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 const App = () => {
   const { updateDocumentTitle } = useChrome();
   useEffect(() => {
-    updateDocumentTitle(CRC_APP_NAME);
+    updateDocumentTitle('API Documentation');
   }, [updateDocumentTitle]);
 
   return (
