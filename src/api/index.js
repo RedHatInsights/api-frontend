@@ -10,9 +10,13 @@ export const apiList = () => {
 export const generateUrl = (appName, appVersion) =>
   `/${DEFAULT_PREFIX}/${appName}/${appVersion}/openapi.json`;
 
-export const activeApi = () =>
+export const activeApi = (isBeta, isProd) =>
   instance
-    .get(`${insights.chrome.isBeta() ? '/beta' : ''}/config/main.yml`)
+    .get(
+      `/api/chrome-service/v1/static/${isBeta ? 'beta' : 'stable'}/${
+        isProd ? 'prod' : 'stage'
+      }/main.yml`
+    )
     .then((data) => load(data))
     .then((data) => ({
       services: Object.keys(data)

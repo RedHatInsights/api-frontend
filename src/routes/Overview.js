@@ -3,7 +3,7 @@ import {
   PageHeader,
   PageHeaderTitle,
 } from '@redhat-cloud-services/frontend-components/PageHeader';
-
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { Main } from '@redhat-cloud-services/frontend-components/Main';
 import { SkeletonTable } from '@redhat-cloud-services/frontend-components/SkeletonTable';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
@@ -50,9 +50,10 @@ const checkChildrenSelection = (selectedRows, subItems, checkAll = false) => {
 };
 
 const Overview = () => {
+  const { isBeta, isProd } = useChrome();
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(onLoadApis());
+    dispatch(onLoadApis(isBeta(), isProd()));
   }, []);
   const loaded = useSelector(({ services: { loaded } }) => loaded);
   const selectedRows = useSelector(

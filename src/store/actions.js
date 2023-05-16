@@ -1,9 +1,9 @@
 import { LOAD_ALL, LOAD_ONE_API, SELECT_ROW } from './actionTypes';
 import { activeApi, oneApi } from '../api';
 
-export const onLoadApis = () => ({
+export const onLoadApis = (isBeta, isProd) => ({
   type: LOAD_ALL,
-  payload: activeApi(),
+  payload: activeApi(isBeta, isProd),
 });
 
 export const onLoadOneApi = (data) => ({

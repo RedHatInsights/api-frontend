@@ -14,10 +14,7 @@ module.exports = {
   sassPrefix: '.api-docs, .apiDocs',
   routes: {
     ...(process.env.CONFIG_PORT && {
-      '/beta/config': {
-        host: `http://localhost:${process.env.CONFIG_PORT}`,
-      },
-      '/config': {
+      '/api/chrome-service/v1/static': {
         host: `http://localhost:${process.env.CONFIG_PORT}`,
       },
     }),
