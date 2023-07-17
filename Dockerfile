@@ -2,6 +2,7 @@ FROM quay.io/cloudservices/caddy-ubi:11145b1
 
 ENV CADDY_TLS_MODE http_port 8000
 
+RUN npm run build
 COPY ./Caddyfile /opt/app-root/src/Caddyfile
 COPY dist /opt/app-root/src/dist/
 COPY ./package.json /opt/app-root/src
