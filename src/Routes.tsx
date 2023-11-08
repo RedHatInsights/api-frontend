@@ -1,10 +1,10 @@
-import { Route, Routes as DomRoutes } from 'react-router-dom';
-import React, { lazy, Suspense, Fragment } from 'react';
-const Overview = lazy(() =>
-  import(/* webpackChunkName: "Overview" */ './routes/Overview')
+import { Routes as DomRoutes, Route } from 'react-router-dom';
+import React, { Fragment, Suspense, lazy } from 'react';
+const Overview = lazy(
+  () => import(/* webpackChunkName: "Overview" */ './routes/Overview')
 );
-const Detail = lazy(() =>
-  import(/* webpackChunkName: "Detail" */ './routes/Detail')
+const Detail = lazy(
+  () => import(/* webpackChunkName: "Detail" */ './routes/Detail')
 );
 
 const paths = {

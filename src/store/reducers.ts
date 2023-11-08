@@ -1,14 +1,24 @@
 import { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/ReducerRegistry';
 import * as ACTIONS from './actionTypes';
 import { versionMapper } from '../api/constants';
+import { Row, Service, ServicesState } from './store';
 
 const defaultState = { loaded: false, selectedRows: {} };
 const disabledApis = ['automation-analytics', 'openshift', 'ruledev'];
 
-const getAppName = (service) =>
+const getAppName = (service: Service) =>
   (service.api.alias && service.api.alias[0]) || service.appName;
 
-function dataLoaded(state, { payload }) {
+function dataLoaded(
+  state: ServicesState,
+  {
+    payload,
+  }: {
+    payload: {
+      services: Service[];
+    };
+  }
+) {
   return {
     ...state,
     endpoints:
@@ -17,7 +27,8 @@ function dataLoaded(state, { payload }) {
         .filter(
           (service) =>
             !disabledApis.includes(service.appName) &&
-            (!service.api.isBeta || insights.chrome.isBeta())
+            // eslint-disable-next-line rulesdir/no-chrome-api-call-from-window
+            (!service.api.isBeta || window.insights.chrome.isBeta())
         )
         .map((service) => ({
           ...service,
@@ -30,7 +41,16 @@ function dataLoaded(state, { payload }) {
   };
 }
 
-function detailLoaded(state, { payload: { latest, ...payload } }) {
+function detailLoaded(
+  state: ServicesState,
+  {
+    payload: { latest, ...payload },
+  }: {
+    payload: Record<string, unknown> & {
+      latest: boolean;
+    };
+  }
+) {
   return {
     ...state,
     spec: payload,
@@ -39,7 +59,17 @@ function detailLoaded(state, { payload: { latest, ...payload } }) {
   };
 }
 
-function onSelectRow(state, { payload: { isSelected, row } }) {
+function onSelectRow(
+  state: ServicesState,
+  {
+    payload: { isSelected, row },
+  }: {
+    payload: {
+      isSelected: boolean;
+      row: Row;
+    };
+  }
+) {
   const selectedRows = {
     ...(state.selectedRows || {}),
     ...(Array.isArray(row)

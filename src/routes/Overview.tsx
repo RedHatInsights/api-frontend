@@ -8,24 +8,35 @@ import { Main } from '@redhat-cloud-services/frontend-components/Main';
 import { SkeletonTable } from '@redhat-cloud-services/frontend-components/SkeletonTable';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryToolbar';
-import { Pagination } from '@patternfly/react-core';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import {
-  Table,
-  TableHeader,
-  TableBody,
+  OnTreeRowCollapse,
+  SortByDirection,
   TableVariant,
 } from '@patternfly/react-table';
+import {
+  Table,
+  TableBody,
+  TableHeader,
+} from '@patternfly/react-table/deprecated';
 import { useDispatch, useSelector } from 'react-redux';
 import { onLoadApis, onSelectRow } from '../store/actions';
 import {
-  filterRows,
   buildRows,
   columns,
+  filterRows,
   multiDownload,
 } from '../Utilities/overviewRows';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
+import { ReduxState, Row } from '../store/store';
 
-const isNotSelected = ({ selectedRows }) => {
+const isRow = (row: any): row is Row => row?.cells[0]?.value !== undefined;
+
+const isNotSelected = ({
+  selectedRows,
+}: {
+  selectedRows: Record<string, Row>;
+}) => {
   return (
     !selectedRows ||
     Object.values(selectedRows || {})
@@ -34,7 +45,11 @@ const isNotSelected = ({ selectedRows }) => {
   );
 };
 
-const checkChildrenSelection = (selectedRows, subItems, checkAll = false) => {
+const checkChildrenSelection = (
+  selectedRows: Record<string, Row>,
+  subItems: Row['subItems'],
+  checkAll = false
+) => {
   if (checkAll && Object.keys(selectedRows).length !== 0) {
     return Object.values(subItems).every?.(({ title }) =>
       Object.entries(selectedRows).find(
@@ -55,15 +70,18 @@ const Overview = () => {
   useEffect(() => {
     dispatch(onLoadApis(isBeta(), isProd()));
   }, []);
-  const loaded = useSelector(({ services: { loaded } }) => loaded);
+  const loaded = useSelector(({ services: { loaded } }: ReduxState) => loaded);
   const selectedRows = useSelector(
-    ({ services: { selectedRows } }) => selectedRows
+    ({ services: { selectedRows } }: ReduxState) => selectedRows
   );
   const endpoints = useSelector(
-    ({ services: { endpoints } }) => endpoints || []
+    ({ services: { endpoints } }: ReduxState) => endpoints || []
   );
-  const [openedRows, setOpenedRows] = useState([]);
-  const [sortBy, onSortBy] = useState({});
+  const [openedRows, setOpenedRows] = useState<string[]>([]);
+  const [sortBy, onSortBy] = useState<{
+    direction?: SortByDirection;
+    index?: number;
+  }>({});
   const [pageSettings, onPaginate] = useState({
     perPage: 50,
     page: 1,
@@ -79,7 +97,12 @@ const Overview = () => {
         openedRows
       )
     : [];
-  const onSetRows = (_e, _index, _item, { props: { value } }) => {
+  const onSetRows: OnTreeRowCollapse = (
+    _e,
+    _index,
+    _item,
+    { props: { value } }
+  ) => {
     if (openedRows.includes(value)) {
       setOpenedRows(() => openedRows.filter((opened) => opened !== value));
     } else {
@@ -88,23 +111,37 @@ const Overview = () => {
   };
 
   const calculatedRows = rows.map((item) => {
-    const value = item.cells[0]?.value;
-    const props = {
-      isChecked: item.selected,
-      isExpanded: openedRows.includes(value),
+    const value = isRow(item) ? item.cells[0]?.value : undefined;
+    const props: {
+      isChecked?: boolean | null;
+      isExpanded?: boolean;
+      value?: string;
+      'aria-setsize'?: number;
+      'aria-posinset'?: number;
+      'aria-level'?: number;
+      isHidden?: boolean;
+    } = {
+      isChecked: isRow(item) ? item.selected : false,
+      isExpanded: openedRows.includes(value!),
       value: value,
-      'aria-setsize': Object.keys(item.subItems || {}).length,
-      'aria-posinset': item.posinset,
+      'aria-setsize': isRow(item) ? Object.keys(item.subItems || {}).length : 0,
+      'aria-posinset': isRow(item) ? item.posinset : 0,
       'aria-level': 1,
     };
 
-    if (Object.prototype.hasOwnProperty.call(item, 'treeParent')) {
-      const parent = rows[item.treeParent];
+    if (
+      isRow(item) &&
+      Object.prototype.hasOwnProperty.call(item, 'treeParent')
+    ) {
+      const parent = rows[item.treeParent!];
       props['aria-level'] = 2;
-      props.isHidden = !openedRows.includes(parent?.cells?.[0]?.value);
-      props.isChecked = item.selected || parent.selected;
+      props.isHidden = isRow(parent)
+        ? !openedRows.includes(parent?.cells?.[0]?.value)
+        : false;
+      props.isChecked = item.selected || (parent as unknown as Row).selected;
     }
     if (
+      isRow(item) &&
       !item.selected &&
       Object.prototype.hasOwnProperty.call(item, 'subItems')
     ) {
@@ -215,7 +252,7 @@ const Overview = () => {
               sortBy={sortBy}
               onSort={(_e, index, direction) => onSortBy({ index, direction })}
               cells={columns(onSetRows, (_e, isSelected, rowKey) => {
-                const currRow = calculatedRows[rowKey];
+                const currRow = calculatedRows[rowKey] as unknown as Row;
                 if (
                   !isSelected &&
                   Object.prototype.hasOwnProperty.call(currRow, 'subItems')
@@ -223,7 +260,11 @@ const Overview = () => {
                   dispatch(
                     onSelectRow({
                       isSelected,
-                      row: calculatedRows.filter(({ props: { value } }) =>
+                      row: (
+                        calculatedRows as unknown as (Row & {
+                          props: { value: string };
+                        })[]
+                      ).filter(({ props: { value } }) =>
                         Object.values(currRow.subItems).find(
                           ({ title }) => title === value
                         )
@@ -239,7 +280,15 @@ const Overview = () => {
               <TableBody />
             </Table>
           ) : (
-            <SkeletonTable columns={columns()} rowSize={28} />
+            <SkeletonTable
+              columns={[
+                'Application name',
+                'API endpoints',
+                'API version',
+                'Download',
+              ]}
+              numberOfColumns={28}
+            />
           )}
         </React.Fragment>
         <TableToolbar isFooter>

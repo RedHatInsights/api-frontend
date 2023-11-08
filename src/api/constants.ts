@@ -1,6 +1,8 @@
 export const DEFAULT_PREFIX = 'api';
 
-export const versionMapper = {
+export const versionMapper: {
+  [serviceName: string]: string;
+} = {
   'aiops-clustering': 'v1.0',
   'aiops-idle-cost-savings': 'v1.0',
   'aiops-instance-type-validation': 'v1.0',

@@ -1,43 +1,58 @@
 import React, { Fragment } from 'react';
+import { Badge } from '@patternfly/react-core/dist/dynamic/components/Badge';
+import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import {
-  Badge,
-  Bullseye,
-  Button,
   EmptyState,
-  Title,
   EmptyStateBody,
   EmptyStateVariant,
-} from '@patternfly/react-core';
+} from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { Link } from 'react-router-dom';
 import {
+  ICell,
+  OnCheckChange,
+  OnTreeRowCollapse,
+  SortByDirection,
   cellWidth,
   nowrap,
   sortable,
-  SortByDirection,
 } from '@patternfly/react-table';
 import { EmptyTable } from '@redhat-cloud-services/frontend-components/EmptyTable';
-import { ExportIcon, ExternalLinkSquareAltIcon } from '@patternfly/react-icons';
+import ExportIcon from '@patternfly/react-icons/dist/dynamic/icons/export-icon';
+import ExternalLinkSquareAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-square-alt-icon';
 import { oneApi } from '../api';
 import fileDownload from 'js-file-download';
 import JSZip from 'jszip';
 import flatten from 'lodash/flatten';
-import { treeRow } from '@patternfly/react-table';
+import { treeRow } from '@patternfly/react-table/';
 import { BASENAME } from './const';
+import { GitHubConfig, Row } from '../store/store';
 
 const indexToKey = ['', 'title', 'appName', 'version']; // pf indexes from 1 not 0
 
-export const columns = (onSetRows, onRowSelected) => [
+export const columns = (
+  onSetRows?: OnTreeRowCollapse,
+  onRowSelected?: OnCheckChange
+): (ICell | string)[] => [
   {
     title: 'Application name',
     transforms: [sortable],
     cellTransforms: [...(onSetRows ? [treeRow(onSetRows, onRowSelected)] : [])],
-  },
+  } as ICell,
   { title: 'API endpoint', transforms: [nowrap, sortable, cellWidth(10)] },
   { title: 'API version', transforms: [nowrap, sortable, cellWidth(10)] },
   { title: 'Download', transforms: [cellWidth(10)] },
 ];
+type QueryConfig = {
+  readonly?: boolean;
+};
 
-const constructParams = (url, github, config) => {
+const constructParams = (
+  url: string,
+  github?: GitHubConfig,
+  config: QueryConfig = {}
+) => {
   const params = new URLSearchParams();
   url && params.set('url', url);
   if (github) {
@@ -46,19 +61,19 @@ const constructParams = (url, github, config) => {
     params.set('github-content', github.path);
   }
   Object.entries(config).forEach(([key, value]) => {
-    value && params.set(key, value);
+    value && params.set(key, `${value}`);
   });
   return params.toString();
 };
 
 export const rowMapper = (
-  title,
-  versions,
-  url,
-  github,
-  selectedRows = [],
-  apiName,
-  config
+  title: string,
+  versions: string[],
+  url: string,
+  github: GitHubConfig,
+  selectedRows: { [rowName: string]: Row } = {},
+  apiName: string,
+  config: QueryConfig = {}
 ) => ({
   selected:
     selectedRows?.[title]?.isSelected ||
@@ -185,24 +200,46 @@ export const emptyTable = [
   },
 ];
 
-export function sortRows(curr, next, key = 'title', isDesc) {
-  const getSortKey = (obj) =>
-    key === 'appName' && obj.apiName ? 'apiName' : key;
+export function sortRows(
+  curr: Row,
+  next: Row,
+  key = 'title',
+  isDesc?: boolean
+) {
+  const getSortKey = (obj: Row): keyof Row =>
+    (key === 'appName' && obj.apiName ? 'apiName' : key) as keyof Row;
   return isDesc
-    ? next[getSortKey(next)]?.localeCompare(curr[getSortKey(curr)], 'en', {
-        sensitivity: 'base',
-      })
-    : curr[getSortKey(curr)]?.localeCompare(next[getSortKey(next)], 'en', {
-        sensitivity: 'base',
-      });
+    ? (next[getSortKey(next)] as string)?.localeCompare(
+        // FIXME: Update types
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        curr[getSortKey(curr)],
+        'en',
+        {
+          sensitivity: 'base',
+        }
+      )
+    : (curr[getSortKey(curr)] as string)?.localeCompare(
+        // FIXME: Update types
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        next[getSortKey(next)],
+        'en',
+        {
+          sensitivity: 'base',
+        }
+      );
 }
 
 export function buildRows(
-  sortBy,
-  { page, perPage },
-  rows,
-  selectedRows,
-  openedRows
+  sortBy: {
+    direction?: SortByDirection;
+    index?: number;
+  },
+  { page, perPage }: { page: number; perPage: number },
+  rows: Row[],
+  selectedRows: { [rowName: string]: Row } = {},
+  openedRows: string[]
 ) {
   if (rows.length > 0) {
     let rowIndex = 0;
@@ -211,7 +248,7 @@ export function buildRows(
         sortRows(
           curr,
           next,
-          indexToKey[sortBy.index],
+          indexToKey[sortBy.index ?? 0],
           sortBy.direction === SortByDirection.desc
         )
       )
@@ -270,12 +307,12 @@ export function buildRows(
   return emptyTable;
 }
 
-export function filterRows(row, filter) {
+export function filterRows(row: Row, filter: string) {
   const restFilterValues = [
     row.frontend?.title,
     ...(row.frontend?.paths || []),
     // eslint-disable-next-line camelcase
-    ...(row.frontend?.sub_apps?.reduce(
+    ...(row.frontend?.sub_apps?.reduce<string[]>(
       (acc, curr) => [...acc, curr.title, curr.id],
       []
     ) || []),
@@ -284,30 +321,41 @@ export function filterRows(row, filter) {
   return (
     indexToKey.some(
       (key) =>
-        row[key] &&
-        row[key].toLocaleLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1
+        row[key as keyof Row] &&
+        (row[key as keyof Row] as string)
+          .toLocaleLowerCase()
+          .indexOf(filter.toLocaleLowerCase()) !== -1
     ) ||
     restFilterValues.some(
       (value) =>
-        value.toLocaleLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1
+        value?.toLocaleLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1
     )
   );
 }
 
-export function downloadFile(appName, appVersion, url, github) {
+export function downloadFile(
+  appName: string,
+  appVersion: string,
+  url: string,
+  github?: GitHubConfig
+) {
   oneApi({
     name: appName,
     version: appVersion,
     url,
     github: { ...github, content: github?.path },
   }).then((data) => {
-    delete data.latest;
-    delete data.name;
-    fileDownload(JSON.stringify(data), `${appName}-openapi.json`);
+    const dataInternal: Partial<typeof data> = { ...data };
+    delete dataInternal.latest;
+    delete dataInternal.name;
+    fileDownload(JSON.stringify(dataInternal), `${appName}-openapi.json`);
   });
 }
 
-export function multiDownload(selectedRows = {}, onError) {
+export function multiDownload(
+  selectedRows: { [rowName: string]: Row } = {},
+  onError: (message: string) => void
+) {
   const zip = new JSZip();
   const allFiles = Object.values(selectedRows)
     .filter(({ isSelected }) => isSelected)
@@ -336,10 +384,13 @@ export function multiDownload(selectedRows = {}, onError) {
 
   Promise.all(flatten(allFiles)).then((files) => {
     if (files && files.length > 1) {
-      files.map(({ name, ...file } = {}) => {
-        if (name) {
-          delete file.latest;
-          zip.file(`${name}-openapi.json`, JSON.stringify(file));
+      files.map((item) => {
+        if (item) {
+          const { name, ...file } = (item as Partial<typeof item>) || {};
+          if (name) {
+            delete file.latest;
+            zip.file(`${name}-openapi.json`, JSON.stringify(file));
+          }
         }
       });
       zip
@@ -348,6 +399,9 @@ export function multiDownload(selectedRows = {}, onError) {
     } else if (files && files.length === 1) {
       const { name, ...file } = files[0] || {};
       if (name) {
+        // FIXME: Update types
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         delete file.latest;
         fileDownload(JSON.stringify(file), `${name}-openapi.json`);
       }
