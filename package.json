@@ -61,7 +61,7 @@
     "test": "TZ=UTC jest --verbose --no-cache",
     "lint": "eslint src",
     "start": "fec dev",
-    "deploy": "npm-run-all build:prod lint test",
+    "deploy": "npm-run-all build lint test",
     "verify": "npm-run-all build lint test",
     "postinstall": "ts-patch install"
   },
