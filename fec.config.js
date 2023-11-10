@@ -19,8 +19,9 @@ module.exports = {
       },
     }),
   },
+  hotReload: true,
   moduleFederation: {
     exclude: ['react-router-dom'],
-    shared: [{ 'react-router-dom': { singleton: true } }],
+    shared: [{ 'react-router-dom': { singleton: true, version: '*' } }],
   },
 };

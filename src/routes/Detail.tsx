@@ -4,6 +4,7 @@ import {
   PageHeader,
   PageHeaderTitle,
 } from '@redhat-cloud-services/frontend-components/PageHeader';
+import { AxiosRequestConfig } from 'axios';
 import { Main } from '@redhat-cloud-services/frontend-components/Main';
 import { useDispatch, useSelector } from 'react-redux';
 import SwaggerUI from 'swagger-ui-react';
@@ -14,34 +15,44 @@ import {
   SkeletonSize,
 } from '@redhat-cloud-services/frontend-components/Skeleton';
 import { Facebook } from 'react-content-loader';
+import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
 import {
-  CardBody,
-  Card,
   Breadcrumb,
   BreadcrumbItem,
-  Modal,
+} from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import {
   Button,
+  ButtonVariant,
+} from '@patternfly/react-core/dist/dynamic/components/Button';
+import {
   Level,
   LevelItem,
-  ButtonVariant,
+} from '@patternfly/react-core/dist/dynamic/layouts/Level';
+import {
   Split,
   SplitItem,
-  TextContent,
+} from '@patternfly/react-core/dist/dynamic/layouts/Split';
+import {
   Text,
-} from '@patternfly/react-core';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons';
-import ReactJson from 'react-json-view';
+  TextContent,
+} from '@patternfly/react-core/dist/dynamic/components/Text';
+import { useNavigate, useParams } from 'react-router-dom';
+import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
+import ReactJson from '@microlink/react-json-view';
 import { useQuery } from '../Utilities/hooks';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { BASENAME } from '../Utilities/const';
+import { ReduxState } from '../store/store';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
 
 const Detail = () => {
   const dispatch = useDispatch();
-  const loaded = useSelector(({ detail: { loaded } }) => loaded);
-  const spec = useSelector(({ detail: { spec } }) => spec);
-  const error = useSelector(({ detail: { error } }) => error);
-  const latest = useSelector(({ detail: { latest } }) => latest);
+  const loaded = useSelector(({ detail: { loaded } }: ReduxState) => loaded);
+  const spec = useSelector(({ detail: { spec } }: ReduxState) => spec);
+  const error = useSelector(({ detail: { error } }: ReduxState) => error);
+  const latest = useSelector(({ detail: { latest } }: ReduxState) => latest);
   const { apiName, version = 'v1' } = useParams();
   const navigate = useNavigate();
   const query = useQuery();
@@ -49,20 +60,20 @@ const Detail = () => {
   useEffect(() => {
     dispatch(
       onLoadOneApi({
-        name: apiName,
+        name: apiName!,
         version,
-        url: query.get('url'),
+        url: query.get('url')!,
         github: {
-          owner: query.get('github-owner'),
-          repo: query.get('github-repo'),
-          content: query.get('github-content'),
+          owner: query.get('github-owner')!,
+          repo: query.get('github-repo')!,
+          content: query.get('github-content')!,
         },
       })
     );
   }, []);
 
   const requestInterceptor = useCallback(
-    async (req) => {
+    async (req: AxiosRequestConfig) => {
       req.headers = {
         ...(req.headers || {}),
         Authorization: `Bearer ${await auth.getToken()}`,
@@ -111,11 +122,14 @@ const Detail = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                Open Raw <ExternalLinkAltIcon size="sm" />
+                                Open Raw
+                                <Icon size="sm">
+                                  <ExternalLinkAltIcon />
+                                </Icon>
                               </Text>
                             </TextContent>
                           ) : (
-                            <Skeleton size={SkeletonSize.mdmd} />
+                            <Skeleton size={SkeletonSize.md} />
                           )}
                         </SplitItem>
                         <SplitItem className="ins-c-docs__api-detail-info">
@@ -155,7 +169,10 @@ const Detail = () => {
                     const {
                       layoutActions: { show },
                     } = system;
-                    system.layoutActions.show = (isShownKey, isShown) => {
+                    system.layoutActions.show = (
+                      isShownKey: string[],
+                      isShown: boolean
+                    ) => {
                       const newHash = CSS.escape(isShownKey.join('-'));
                       const oldHash = location.hash?.replace('#', '');
                       show(isShownKey, isShown);

@@ -3,13 +3,14 @@ import ReducerRegistry from '@redhat-cloud-services/frontend-components-utilitie
 import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import promiseMiddleware from 'redux-promise-middleware';
-import { services, detail } from './reducers';
+import { detail, services } from './reducers';
+import { Middleware } from 'redux';
 
 export const RegistryContext = createContext({
   getRegistry: () => {},
 });
 
-export function init(...middleware) {
+export function init(...middleware: Middleware[]) {
   const registry = new ReducerRegistry({}, [
     promiseMiddleware,
     notificationsMiddleware({
@@ -18,7 +19,11 @@ export function init(...middleware) {
     ...middleware.filter((item) => typeof item !== 'undefined'),
   ]);
 
-  registry.register({ services, detail, notifications: notificationsReducer });
+  registry.register({
+    services,
+    detail,
+    notifications: notificationsReducer as typeof detail,
+  });
 
   //If you want to register all of your reducers, this is good place.
   /*
