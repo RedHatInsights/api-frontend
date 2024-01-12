@@ -221,6 +221,7 @@ const Overview = () => {
                 onPerPageSelect: (_event, perPage) =>
                   onPaginate({
                     ...pageSettings,
+                    page: 1,
                     perPage,
                   }),
               },
@@ -308,6 +309,7 @@ const Overview = () => {
               onPerPageSelect={(_event, perPage) =>
                 onPaginate({
                   ...pageSettings,
+                  page: 1,
                   perPage,
                 })
               }
