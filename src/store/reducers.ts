@@ -4,7 +4,13 @@ import { versionMapper } from '../api/constants';
 import { Row, Service, ServicesState } from './store';
 
 const defaultState = { loaded: false, selectedRows: {} };
-const disabledApis = ['automation-analytics', 'openshift', 'ruledev'];
+const disabledApis = [
+  'automation-analytics',
+  'openshift',
+  'ruledev',
+  'acs',
+  'app-studio-docs',
+];
 
 const getAppName = (service: Service) =>
   (service.api.alias && service.api.alias[0]) || service.appName;
