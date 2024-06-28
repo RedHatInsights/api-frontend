@@ -10,6 +10,9 @@ const App = () => {
     updateDocumentTitle('API Documentation | Hybrid Cloud Console', true);
   }, [updateDocumentTitle]);
 
+  // eslint-disable-next-line no-console
+  console.log("KONFLUX TEST")
+
   return (
     <React.Fragment>
       <NotificationsPortal />
