@@ -11,7 +11,7 @@ const App = () => {
   }, [updateDocumentTitle]);
 
   // eslint-disable-next-line no-console
-  console.log("KONFLUX TEST")
+  console.log('KONFLUX TEST')
 
   return (
     <React.Fragment>
