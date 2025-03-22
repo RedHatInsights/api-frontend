@@ -7,9 +7,8 @@ metadata:
     build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "master"
-  creationTimestamp: null
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "master"
+  creationTimestamp:
   labels:
     appstudio.openshift.io/application: api-frontend
     appstudio.openshift.io/component: api-frontend
@@ -79,13 +78,11 @@ spec:
       name: output-image
       type: string
     - default: .
-      description: Path to the source code of an application's component from where
-        to build image.
+      description: Path to the source code of an application's component from where to build image.
       name: path-context
       type: string
     - default: Dockerfile
-      description: Path to the Dockerfile inside the context specified by parameter
-        path-context
+      description: Path to the Dockerfile inside the context specified by parameter path-context
       name: dockerfile
       type: string
     - default: "false"
@@ -109,16 +106,14 @@ spec:
       name: java
       type: string
     - default: ""
-      description: Image tag expiration time, time values could be something like
-        1h, 2d, 3w for hours, days, and weeks, respectively.
+      description: Image tag expiration time, time values could be something like 1h, 2d, 3w for hours, days, and weeks, respectively.
       name: image-expires-after
     - default: "false"
       description: Build a source image.
       name: build-source-image
       type: string
     - default: ""
-      description: Path to a file with build arguments which will be passed to podman
-        during build
+      description: Path to a file with build arguments which will be passed to podman during build
       name: build-args-file
       type: string
     results:
@@ -178,7 +173,7 @@ spec:
         - "true"
       workspaces:
       - name: basic-auth
-        workspace: git-auth     
+        workspace: git-auth
     - name: clone-repository
       params:
       - name: url
@@ -308,7 +303,7 @@ spec:
         - name: name
           value: rpms-signature-scan
         - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-rpms-signature-scan:0.2@sha256:d00d159c370e3c99447516970c316ef57dfd27c29e0ce3cff50727c9c40936d8
+          value: quay.io/konflux-ci/tekton-catalog/task-rpms-signature-scan:0.2@sha256:3e01c8b322226ad5067ba1ce4ea7bc528f708c3e0d8b6a17a0c4112dbd46c549
         - name: kind
           value: task
         resolver: bundles
@@ -347,7 +342,7 @@ spec:
         - name: name
           value: clair-scan
         - name: bundle
-          value: quay.io/redhat-appstudio-tekton-catalog/task-clair-scan:0.2@sha256:e9c29ce65c9cf9ce796f14c1464bd95402b335292333f054ad4f8d951d63f630
+          value: quay.io/redhat-appstudio-tekton-catalog/task-clair-scan:0.2@sha256:26eee10c16e4ed6a6a801c3e1456a63f3842eab1d8e8ea3a8efa35d83f5f8df1
         - name: kind
           value: task
         resolver: bundles
@@ -367,7 +362,7 @@ spec:
         - name: name
           value: ecosystem-cert-preflight-checks
         - name: bundle
-          value: quay.io/redhat-appstudio-tekton-catalog/task-ecosystem-cert-preflight-checks:0.2@sha256:9ca3eb92f4776750a8f3be967a802362367898a16e6b1a58b3418b29e25f8c8a
+          value: quay.io/redhat-appstudio-tekton-catalog/task-ecosystem-cert-preflight-checks:0.2@sha256:0a5a6fdc7ea2fd18344ea2eb6f2aba776f06eed3cf5ed68b1881271f4443574a
         - name: kind
           value: task
         resolver: bundles
@@ -384,7 +379,7 @@ spec:
         - name: name
           value: sast-snyk-check
         - name: bundle
-          value: quay.io/redhat-appstudio-tekton-catalog/task-sast-snyk-check:0.3@sha256:bc394bfc78f282cbce13a334203731be57c4150ce3db691f775ef0dd97be6f77
+          value: quay.io/redhat-appstudio-tekton-catalog/task-sast-snyk-check:0.3@sha256:220c45850114e93648087aa1c05555b4a95c7cbad1a14f25e11161a74395f504
         - name: kind
           value: task
         resolver: bundles
@@ -409,7 +404,7 @@ spec:
         - name: name
           value: clamav-scan
         - name: bundle
-          value: quay.io/redhat-appstudio-tekton-catalog/task-clamav-scan:0.2@sha256:42d35edf251cad78d396959c4cf2eff56d1ee551d0f8c51caf744b3cafaa4fe7
+          value: quay.io/redhat-appstudio-tekton-catalog/task-clamav-scan:0.2@sha256:bf7ba9508a0beddb75376ef838c4e3858feae6efe86ed95efb5b938c532c22ef
         - name: kind
           value: task
         resolver: bundles
@@ -436,45 +431,45 @@ spec:
     - name: run-unit-tests
       description: Validates frontend unit tests
       params:
-        - name: SOURCE_ARTIFACT
-          value: $(tasks.clone-repository-oci-ta.results.SOURCE_ARTIFACT)
+      - name: SOURCE_ARTIFACT
+        value: $(tasks.clone-repository-oci-ta.results.SOURCE_ARTIFACT)
       runAfter:
-        - clone-repository-oci-ta
+      - clone-repository-oci-ta
       workspaces:
       - name: basic-auth
         workspace: git-auth
       taskSpec:
         params:
-          - description: The Trusted Artifact URI pointing to the artifact with the application source code.
-            name: SOURCE_ARTIFACT
-            type: string
+        - description: The Trusted Artifact URI pointing to the artifact with the application source code.
+          name: SOURCE_ARTIFACT
+          type: string
         volumes:
           # New volume to store a copy of the source code accessible only to this Task.
-          - name: workdir
-            emptyDir: {}
+        - name: workdir
+          emptyDir: {}
         stepTemplate:
           volumeMounts:
-            - mountPath: /var/workdir
-              name: workdir
-              readOnly: false
+          - mountPath: /var/workdir
+            name: workdir
+            readOnly: false
         sidecars:
         steps:
-          - name: use-trusted-artifact
-            image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
-            args:
-              - use
-              - $(params.SOURCE_ARTIFACT)=/var/workdir
-          - image: registry.access.redhat.com/ubi8/nodejs-20
-            workingDir: /var/workdir
-            name: unit-tests
-            securityContext:
-              runAsUser: 0
-            script: |
-              #!/bin/bash
-              set -ex
-              
-              npm install
-              npm test
+        - name: use-trusted-artifact
+          image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
+          args:
+          - use
+          - $(params.SOURCE_ARTIFACT)=/var/workdir
+        - image: registry.access.redhat.com/ubi8/nodejs-20
+          workingDir: /var/workdir
+          name: unit-tests
+          securityContext:
+            runAsUser: 0
+          script: |
+            #!/bin/bash
+            set -ex
+
+            npm install
+            npm test
     workspaces:
     - name: workspace
     - name: git-auth
@@ -484,7 +479,7 @@ spec:
   - name: workspace
     volumeClaimTemplate:
       metadata:
-        creationTimestamp: null
+        creationTimestamp:
       spec:
         accessModes:
         - ReadWriteOnce
