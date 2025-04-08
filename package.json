@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@microlink/react-json-view": "^1.23.0",
-    "@patternfly/react-core": "^5.1.1",
+    "@patternfly/react-core": "^6.2.0",
     "@patternfly/react-icons": "^5.1.1",
     "@patternfly/react-table": "^5.1.1",
     "@redhat-cloud-services/frontend-components": "^4.2.15",
