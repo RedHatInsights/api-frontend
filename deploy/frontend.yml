@@ -40,7 +40,6 @@ objects:
               title: API Documentation
               appId: apiDocs
               href: /docs/api
-          position: 300
 parameters:
   - name: ENV_NAME
     required: true
