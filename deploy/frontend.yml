@@ -37,8 +37,7 @@ objects:
           navItems:
             - id: apiDocumentation
               title: API Documentation
-              appId: apiDocs
-              href: /docs/api
+              href: "/docs/api"
 parameters:
   - name: ENV_NAME
     required: true
