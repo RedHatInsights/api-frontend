@@ -27,7 +27,7 @@ import {
   filterRows,
   multiDownload,
 } from '../Utilities/overviewRows';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
+import { useAddNotification } from '@redhat-cloud-services/frontend-components-notifications/hooks';
 import { ReduxState, Row } from '../store/store';
 
 const isRow = (row: any): row is Row => row?.cells[0]?.value !== undefined;
@@ -67,6 +67,7 @@ const checkChildrenSelection = (
 const Overview = () => {
   const { isBeta, isProd } = useChrome();
   const dispatch = useDispatch();
+  const addNotification = useAddNotification();
   useEffect(() => {
     dispatch(onLoadApis(isBeta(), isProd()));
   }, []);
@@ -196,14 +197,12 @@ const Overview = () => {
                     isDisabled: isNotSelected({ selectedRows }),
                     onClick: () =>
                       multiDownload(selectedRows, (error) =>
-                        dispatch(
-                          addNotification({
-                            variant: 'danger',
-                            title: 'Server error',
-                            description: error,
-                            dismissable: true,
-                          })
-                        )
+                        addNotification({
+                          variant: 'danger',
+                          title: 'Server error',
+                          description: error,
+                          dismissable: true,
+                        })
                       ),
                   },
                 },
@@ -288,7 +287,7 @@ const Overview = () => {
                 'API version',
                 'Download',
               ]}
-              numberOfColumns={28}
+              columnsCount={28}
             />
           )}
         </React.Fragment>
