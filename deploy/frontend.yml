@@ -30,7 +30,6 @@ objects:
             routes:
               - pathname: /docs/api
               - pathname: /docs
-        moduleID: apiDocs
       bundleSegments:
         - segmentId: api-docs
           bundleId: docs
