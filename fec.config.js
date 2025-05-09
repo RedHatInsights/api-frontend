@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   appUrl: '/docs/api',
   debug: true,
@@ -12,6 +14,7 @@ module.exports = {
    */
   plugins: [],
   sassPrefix: '.api-docs, .apiDocs',
+  frontendCRDPath: path.resolve(__dirname, './deploy/frontend.yml'),
   routes: {
     ...(process.env.CONFIG_PORT && {
       '/api/chrome-service/v1/static': {
