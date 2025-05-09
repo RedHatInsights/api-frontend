@@ -1,31 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  PageHeader,
-  PageHeaderTitle,
-} from '@redhat-cloud-services/frontend-components/PageHeader';
-import { AxiosRequestConfig } from 'axios';
-import { Main } from '@redhat-cloud-services/frontend-components/Main';
-import { useDispatch, useSelector } from 'react-redux';
-import SwaggerUI from 'swagger-ui-react';
-import 'swagger-ui-react/swagger-ui.css';
-import { onLoadOneApi } from '../store/actions';
-import {
-  Skeleton,
-  SkeletonSize,
-} from '@redhat-cloud-services/frontend-components/Skeleton';
-import { Facebook } from 'react-content-loader';
-import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
-import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
+import ReactJson from '@microlink/react-json-view';
 import {
   Breadcrumb,
   BreadcrumbItem,
 } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
-import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import {
   Button,
   ButtonVariant,
 } from '@patternfly/react-core/dist/dynamic/components/Button';
+import {
+  Card,
+  CardBody,
+} from '@patternfly/react-core/dist/dynamic/components/Card';
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from '@patternfly/react-core/dist/dynamic/components/Modal';
 import {
   Level,
   LevelItem,
@@ -34,18 +25,28 @@ import {
   Split,
   SplitItem,
 } from '@patternfly/react-core/dist/dynamic/layouts/Split';
-import {
-  Text,
-  TextContent,
-} from '@patternfly/react-core/dist/dynamic/components/Text';
-import { useNavigate, useParams } from 'react-router-dom';
 import ExternalLinkAltIcon from '@patternfly/react-icons/dist/dynamic/icons/external-link-alt-icon';
-import ReactJson from '@microlink/react-json-view';
-import { useQuery } from '../Utilities/hooks';
+import { Main } from '@redhat-cloud-services/frontend-components/Main';
+import {
+  PageHeader,
+  PageHeaderTitle,
+} from '@redhat-cloud-services/frontend-components/PageHeader';
+import {
+  Skeleton,
+  SkeletonSize,
+} from '@redhat-cloud-services/frontend-components/Skeleton';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { BASENAME } from '../Utilities/const';
+import { AxiosRequestConfig } from 'axios';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Facebook } from 'react-content-loader';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import SwaggerUI from 'swagger-ui-react';
+import 'swagger-ui-react/swagger-ui.css';
+import { onLoadOneApi } from '../store/actions';
 import { ReduxState } from '../store/store';
-import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
+import { BASENAME } from '../Utilities/const';
+import { useQuery } from '../Utilities/hooks';
 
 const Detail = () => {
   const dispatch = useDispatch();
@@ -111,23 +112,21 @@ const Detail = () => {
                       <Split hasGutter>
                         <SplitItem className="ins-c-docs__api-detail-info">
                           {loaded && !error ? (
-                            <TextContent>
-                              <Text
-                                component="a"
-                                href={`${
-                                  latest.includes('https://')
-                                    ? ''
-                                    : location.origin
-                                }${latest}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                Open Raw
-                                <Icon size="sm">
-                                  <ExternalLinkAltIcon />
-                                </Icon>
-                              </Text>
-                            </TextContent>
+                            <Button
+                              variant={'link'}
+                              component={'a'}
+                              href={`${
+                                latest.includes('https://')
+                                  ? ''
+                                  : location.origin
+                              }${latest}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              icon={<ExternalLinkAltIcon />}
+                              iconPosition="end"
+                            >
+                              Open Raw
+                            </Button>
                           ) : (
                             <Skeleton size={SkeletonSize.md} />
                           )}
@@ -209,29 +208,28 @@ const Detail = () => {
           </Card>
         </React.Fragment>
       </Main>
-      <Modal
-        width={'50%'}
-        title="Spec JSON"
-        isOpen={isOpen}
-        onClose={() => onModalToggle(false)}
-        actions={[
+      <Modal width={'50%'} isOpen={isOpen} onClose={() => onModalToggle(false)}>
+        <ModalHeader title={'Spec JSON'} />
+        <ModalBody>
+          <ReactJson
+            displayDataTypes={false}
+            shouldCollapse={({ name }) => name !== 'root' && name !== 'paths'}
+            src={spec}
+            enableClipboard={({ src }) =>
+              navigator.clipboard.writeText(JSON.stringify(src, null, 2))
+            }
+          />
+        </ModalBody>
+        <ModalFooter>
           <Button
             key="close"
             variant={ButtonVariant.secondary}
             onClick={() => onModalToggle(false)}
           >
             Close
-          </Button>,
-        ]}
-      >
-        <ReactJson
-          displayDataTypes={false}
-          shouldCollapse={({ name }) => name !== 'root' && name !== 'paths'}
-          src={spec}
-          enableClipboard={({ src }) =>
-            navigator.clipboard.writeText(JSON.stringify(src, null, 2))
-          }
-        />
+          </Button>
+          ,
+        </ModalFooter>
       </Modal>
     </React.Fragment>
   );

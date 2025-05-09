@@ -7,7 +7,6 @@ import {
   EmptyStateBody,
   EmptyStateVariant,
 } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { Link } from 'react-router-dom';
 import {
   ICell,
@@ -164,10 +163,8 @@ export const rowMapper = (
         <Button
           variant="plain"
           onClick={() => downloadFile(apiName, versions?.[0], url, github)}
-        >
-          {' '}
-          <ExportIcon />{' '}
-        </Button>
+          icon={<ExportIcon />}
+        />
       ),
     },
   ],
@@ -180,10 +177,10 @@ export const emptyTable = [
         title: (
           <EmptyTable>
             <Bullseye>
-              <EmptyState variant={EmptyStateVariant.full}>
-                <Title headingLevel="h5" size="lg">
-                  No matching rules found
-                </Title>
+              <EmptyState
+                variant={EmptyStateVariant.full}
+                titleText={'No matching rules found'}
+              >
                 <EmptyStateBody>
                   This filter criteria matches no rules. <br /> Try changing
                   your filter settings.
