@@ -28,7 +28,7 @@
     "swagger-ui-react": "^5.9.2"
   },
   "devDependencies": {
-    "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^2.0.3",
+    "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^3.0.0",
     "@redhat-cloud-services/frontend-components-config": "^6.7.4",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.16",
     "@redhat-cloud-services/types": "^1.0.3",
