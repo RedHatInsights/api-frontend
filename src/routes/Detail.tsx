@@ -160,7 +160,7 @@ const Detail = () => {
                 <SwaggerUI
                   docExpansion="list"
                   {...(query.get('readonly') && {
-                    supportedSubmitMethods: [''],
+                    supportedSubmitMethods: [],
                   })}
                   spec={spec}
                   requestInterceptor={requestInterceptor}
