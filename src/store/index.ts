@@ -8,11 +8,11 @@ export const RegistryContext = createContext({
   getRegistry: () => {},
 });
 
-export function init(...middleware: Middleware[]) {
+export function init(...middleware: Middleware<any, any, any>[]) {
   const registry = new ReducerRegistry({}, [
     promiseMiddleware,
     ...middleware.filter((item) => typeof item !== 'undefined'),
-  ]);
+  ] as Middleware[]);
 
   registry.register({
     services,
