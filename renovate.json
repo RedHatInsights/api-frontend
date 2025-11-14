@@ -6,7 +6,6 @@
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "npm minor and patch dependencies",
-      "rangeStrategy": "bump",
       "enabled": true
     },
     {
