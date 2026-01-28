@@ -38,6 +38,20 @@ objects:
             - id: apiDocumentation
               title: API Documentation
               href: "/docs/api"
+        - segmentId: productDocumentation
+          bundleId: docs
+          position: 200
+          navItems:
+            - id: productDocumentation
+              title: Product Documentation
+              expandable: true
+              routes:
+                - title: Insights
+                  id: insights
+                  href: "/docs/product/insights"
+                - title: Cost Management
+                  id: costManagement
+                  href: "/docs/product/cost-management"
 parameters:
   - name: ENV_NAME
     required: true
