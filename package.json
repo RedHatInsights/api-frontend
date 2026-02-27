@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^2.0.12",
-    "@redhat-cloud-services/frontend-components-config": "^6.7.4",
+    "@redhat-cloud-services/frontend-components-config": "^6.7.54",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.26",
     "@redhat-cloud-services/types": "^1.0.25",
     "@swc/core": "^1.13.21",
