@@ -47,8 +47,13 @@ import { onLoadOneApi } from '../store/actions';
 import { ReduxState } from '../store/store';
 import { BASENAME } from '../Utilities/const';
 import { useQuery } from '../Utilities/hooks';
+import { applySwaggerDarkMode } from '../utils/swaggerDarkMode';
 
 const Detail = () => {
+  useEffect(() => {
+    applySwaggerDarkMode();
+  }, []);
+
   const dispatch = useDispatch();
   const loaded = useSelector(({ detail: { loaded } }: ReduxState) => loaded);
   const spec = useSelector(({ detail: { spec } }: ReduxState) => spec);
