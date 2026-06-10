@@ -71,7 +71,7 @@ const Detail = () => {
         },
       })
     );
-  }, []);
+  }, [apiName, version, query, dispatch]);
 
   const requestInterceptor = useCallback(
     async (req: AxiosRequestConfig) => {
