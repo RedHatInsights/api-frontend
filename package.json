@@ -30,6 +30,7 @@
   "devDependencies": {
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^2.0.12",
     "@redhat-cloud-services/frontend-components-config": "^6.7.4",
+    "@redhat-cloud-services/hcc-storybook-hub": "^0.2.0",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.26",
     "@redhat-cloud-services/types": "^1.0.25",
     "@swc/core": "^1.13.21",
@@ -61,14 +62,22 @@
   },
   "scripts": {
     "build": "fec build",
-    "test": "exit 0;",
+    "test": "echo \"No unit tests — use npm run test-storybook for component tests\"",
     "lint": "eslint src",
     "start": "fec dev",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test-storybook": "test-storybook --ci --testTimeout=60000",
     "deploy": "npm-run-all build lint test",
     "verify": "npm-run-all build lint test",
     "postinstall": "ts-patch install"
   },
   "insights": {
     "appname": "api-docs"
+  },
+  "msw": {
+    "workerDirectory": [
+      "static"
+    ]
   }
 }
