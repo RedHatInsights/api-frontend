@@ -2,6 +2,11 @@ import { DEFAULT_PREFIX, versionMapper } from './constants';
 import instance from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { load } from 'js-yaml';
 import { GitHubConfig } from '../store/store';
+import {
+  filterSameOriginServers,
+  isAllowedGitHubOwner,
+  isAllowedSpecUrl,
+} from '../utils/urlValidation';
 export { default as instance } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 
 export const apiList = () => {
@@ -63,6 +68,24 @@ export const oneApi = ({
   url?: string;
   github?: Partial<GitHubConfig>;
 }) => {
+  // Validate GitHub owner against Red Hat org allowlist
+  if (isValidGithub(github) && !isAllowedGitHubOwner(github.owner)) {
+    return Promise.reject(
+      new Error(
+        `GitHub owner "${github.owner}" is not in the allowed organizations list`
+      )
+    );
+  }
+
+  // Validate ?url= param — only same-origin URLs are allowed
+  if (defaultUrl && !isAllowedSpecUrl(defaultUrl)) {
+    return Promise.reject(
+      new Error(
+        'External spec URLs are not allowed. Only same-origin URLs are permitted.'
+      )
+    );
+  }
+
   const url = isValidGithub(github)
     ? `https://api.github.com/repos/${github.owner}/${github.repo}/contents/${github.content}`
     : defaultUrl ?? generateUrl(name, versionMapper[name] || version);
@@ -71,24 +94,28 @@ export const oneApi = ({
     ...data,
     latest: url,
     name,
-    servers: [
-      ...(data.servers || []),
-      { url: `/api/${name}/${versionMapper[name] || version}` },
-    ]
-      .filter(
-        (server, key, array) =>
-          array.findIndex(
-            ({ url }) =>
-              `${location.origin}${server.url}`.indexOf(url) === 0 ||
-              server.url.indexOf(url) === 0
-          ) === key
-      )
-      .map((server) => ({
-        ...server,
-        url:
-          server.url.indexOf('/') === 0
-            ? `${location.origin}${server.url}`
-            : server.url,
-      })),
+    // Only keep same-origin server entries to prevent Try-it-out
+    // from targeting attacker-controlled endpoints
+    servers: filterSameOriginServers(
+      [
+        ...(data.servers || []),
+        { url: `/api/${name}/${versionMapper[name] || version}` },
+      ]
+        .filter(
+          (server, key, array) =>
+            array.findIndex(
+              ({ url }) =>
+                `${location.origin}${server.url}`.indexOf(url) === 0 ||
+                server.url.indexOf(url) === 0
+            ) === key
+        )
+        .map((server) => ({
+          ...server,
+          url:
+            server.url.indexOf('/') === 0
+              ? `${location.origin}${server.url}`
+              : server.url,
+        }))
+    ),
   }));
 };
