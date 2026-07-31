@@ -28,8 +28,9 @@ export const isSameOriginUrl = (url: string | undefined): boolean => {
     return false;
   }
 
-  // Relative URLs are same-origin
-  if (url.startsWith('/')) {
+  // Protocol-relative URLs (//evil.com) are NOT same-origin — reject early
+  // Relative URLs starting with single / are same-origin
+  if (url.startsWith('/') && !url.startsWith('//')) {
     return true;
   }
 
@@ -53,8 +54,9 @@ export const isAllowedGitHubOwner = (owner: string): boolean => {
  * External absolute URLs are rejected to prevent loading attacker-controlled specs.
  */
 export const isAllowedSpecUrl = (url: string): boolean => {
-  // Relative URLs starting with / are always same-origin
-  if (url.startsWith('/')) {
+  // Protocol-relative URLs (//evil.com) are NOT same-origin — reject early
+  // Relative URLs starting with single / are always same-origin
+  if (url.startsWith('/') && !url.startsWith('//')) {
     return true;
   }
 
@@ -75,10 +77,12 @@ export const filterSameOriginServers = (
   servers: Array<{ url: string; [key: string]: unknown }>
 ): Array<{ url: string; [key: string]: unknown }> => {
   return servers.filter((server) => {
-    const serverUrl =
-      server.url.indexOf('/') === 0
-        ? `${location.origin}${server.url}`
-        : server.url;
+    // Protocol-relative URLs (//evil.com) must not be treated as relative paths
+    const isRelativePath =
+      server.url.indexOf('/') === 0 && server.url.indexOf('//') !== 0;
+    const serverUrl = isRelativePath
+      ? `${location.origin}${server.url}`
+      : server.url;
     try {
       const parsed = new URL(serverUrl);
       return parsed.origin === location.origin;

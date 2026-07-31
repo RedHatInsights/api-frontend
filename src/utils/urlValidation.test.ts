@@ -38,6 +38,11 @@ describe('isSameOriginUrl', () => {
   it('returns false for malformed URLs', () => {
     expect(isSameOriginUrl('not-a-url')).toBe(false);
   });
+
+  it('returns false for protocol-relative URLs (double slash)', () => {
+    expect(isSameOriginUrl('//evil.com/steal-token')).toBe(false);
+    expect(isSameOriginUrl('//attacker.io/path')).toBe(false);
+  });
 });
 
 describe('isAllowedGitHubOwner', () => {
@@ -73,6 +78,11 @@ describe('isAllowedSpecUrl', () => {
     );
     expect(isAllowedSpecUrl('http://attacker.com/openapi.json')).toBe(false);
   });
+
+  it('rejects protocol-relative URLs (double slash)', () => {
+    expect(isAllowedSpecUrl('//evil.com/malicious-spec.json')).toBe(false);
+    expect(isAllowedSpecUrl('//attacker.io/openapi.json')).toBe(false);
+  });
 });
 
 describe('filterSameOriginServers', () => {
@@ -91,6 +101,15 @@ describe('filterSameOriginServers', () => {
       { url: '/api/foo/v1' },
       { url: 'https://evil.com/api' },
       { url: 'https://attacker.io/steal' },
+    ];
+    expect(filterSameOriginServers(servers)).toEqual([{ url: '/api/foo/v1' }]);
+  });
+
+  it('removes protocol-relative URL servers (double slash)', () => {
+    const servers = [
+      { url: '/api/foo/v1' },
+      { url: '//evil.com/api' },
+      { url: '//attacker.io/steal' },
     ];
     expect(filterSameOriginServers(servers)).toEqual([{ url: '/api/foo/v1' }]);
   });

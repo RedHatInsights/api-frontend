@@ -112,7 +112,7 @@ export const oneApi = ({
         .map((server) => ({
           ...server,
           url:
-            server.url.indexOf('/') === 0
+            server.url.indexOf('/') === 0 && server.url.indexOf('//') !== 0
               ? `${location.origin}${server.url}`
               : server.url,
         }))
