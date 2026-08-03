@@ -48,6 +48,7 @@ import { ReduxState } from '../store/store';
 import { BASENAME } from '../Utilities/const';
 import { useQuery } from '../Utilities/hooks';
 import { applySwaggerDarkMode } from '../utils/swaggerDarkMode';
+import { isSameOriginUrl } from '../utils/urlValidation';
 
 const Detail = () => {
   useEffect(() => {
@@ -80,10 +81,12 @@ const Detail = () => {
 
   const requestInterceptor = useCallback(
     async (req: AxiosRequestConfig) => {
-      req.headers = {
-        ...(req.headers || {}),
-        Authorization: `Bearer ${await auth.getToken()}`,
-      };
+      if (isSameOriginUrl(req.url)) {
+        req.headers = {
+          ...(req.headers || {}),
+          Authorization: `Bearer ${await auth.getToken()}`,
+        };
+      }
       return req;
     },
     [auth]
