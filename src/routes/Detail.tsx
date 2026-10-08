@@ -93,6 +93,23 @@ const Detail = () => {
   );
 
   const [isOpen, onModalToggle] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    document.documentElement.matches('.pf-v5-theme-dark, .pf-v6-theme-dark')
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(
+        document.documentElement.matches('.pf-v5-theme-dark, .pf-v6-theme-dark')
+      );
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <React.Fragment>
@@ -220,6 +237,7 @@ const Detail = () => {
         <ModalHeader title={'Spec JSON'} />
         <ModalBody>
           <ReactJson
+            theme={isDarkMode ? 'monokai' : 'rjv-default'}
             displayDataTypes={false}
             shouldCollapse={({ name }) => name !== 'root' && name !== 'paths'}
             src={spec}
